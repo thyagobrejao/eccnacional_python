@@ -1,0 +1,1 @@
+Test file content for S3 upload

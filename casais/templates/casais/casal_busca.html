@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+      </div>
+      <div class="card-body">
+        <form method="get" class="mb-4">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label for="{{ form.q.id_for_label }}" class="form-label">{{ form.q.label }}</label>
+              {{ form.q }}
+            </div>
+            <div class="col-md-3">
+              <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+              {{ form.email }}
+            </div>
+            <div class="col-md-3">
+              <label for="{{ form.telefone.id_for_label }}" class="form-label">{{ form.telefone.label }}</label>
+              {{ form.telefone }}
+            </div>
+            <div class="col-md-3">
+              <label for="{{ form.paroquia.id_for_label }}" class="form-label">{{ form.paroquia.label }}</label>
+              {{ form.paroquia }}
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary">
+                <i class="ri ri-search-line me-1"></i>Buscar
+              </button>
+              <a href="{% url 'casais:busca' %}" class="btn btn-outline-secondary">
+                <i class="ri ri-refresh-line me-1"></i>Limpar
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+          Resultados
+          {% if casais %}
+            <span class="badge bg-label-primary ms-2">{{ paginator.count }}</span>
+          {% endif %}
+        </h5>
+        <a href="{% url 'casais:create' %}" class="btn btn-primary btn-sm">
+          <i class="ri ri-add-line me-1"></i>Novo Casal
+        </a>
+      </div>
+      <div class="card-body">
+        {% if casais %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">Foto</th>
+                  <th>Ele</th>
+                  <th>Ela</th>
+                  <th>E-mail Ele</th>
+                  <th>E-mail Ela</th>
+                  <th>Paróquia</th>
+                  <th style="width: 180px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for casal in casais %}
+                  <tr>
+                    <td>
+                      {% if casal.foto %}
+                        <img src="{{ casal.foto.url }}" alt="{{ casal }}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                      {% else %}
+                        <div class="rounded bg-label-secondary d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                          <i class="ri ri-team-line ri-lg"></i>
+                        </div>
+                      {% endif %}
+                    </td>
+                    <td>{{ casal.ele }}</td>
+                    <td>{{ casal.ela }}</td>
+                    <td>{{ casal.email_ele|default:"-" }}</td>
+                    <td>{{ casal.email_ela|default:"-" }}</td>
+                    <td>{{ casal.paroquia.nome|default:"-" }}</td>
+                    <td>
+                      <a href="{% url 'casais:detail' casal.pk %}" class="btn btn-sm btn-outline-info" title="Ver Detalhes">
+                        <i class="ri ri-eye-line"></i>
+                      </a>
+                      <a href="{% url 'casais:update' casal.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                        <i class="ri ri-edit-line"></i>
+                      </a>
+                      <form method="post" action="{% url 'casais:delete' casal.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir" onclick="return confirm('Deseja excluir este casal?');">
+                          <i class="ri ri-delete-bin-line"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% if is_paginated %}
+            <nav class="mt-4">
+              <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}">Anterior</a>
+                  </li>
+                {% endif %}
+                <li class="page-item disabled">
+                  <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">Próxima</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+          {% endif %}
+        {% else %}
+          <div class="text-center py-5">
+            <i class="ri ri-search-line ri-4x text-secondary"></i>
+            <p class="mt-3 text-muted">
+              {% if request.GET %}
+                Nenhum casal encontrado com os filtros aplicados.
+              {% else %}
+                Use os filtros acima para buscar casais.
+              {% endif %}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+$(document).ready(function() {
+  // Máscara de telefone
+  $('.phone-mask').mask('(00) 00000-0000');
+
+  // Select2 para paróquia
+  $('#id_paroquia').select2({
+    theme: 'bootstrap-5',
+    placeholder: 'Todas as paróquias',
+    allowClear: true,
+    language: {
+      noResults: function() {
+        return "Nenhuma paróquia encontrada";
+      }
+    }
+  });
+});
+</script>
+{% endblock extra_js %}

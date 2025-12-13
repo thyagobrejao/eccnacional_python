@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-lg-8">
+    <!-- Info do Encontro -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">{{ encontro.nome }}</h4>
+        {% if can_edit %}
+          <div class="d-flex gap-2">
+            <a href="{% url 'encontros:update' encontro.pk %}" class="btn btn-outline-primary btn-sm">
+              <i class="ri ri-edit-line me-1"></i>Editar
+            </a>
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3">
+            <p class="text-muted mb-1">Etapa</p>
+            <p class="fw-semibold">{{ encontro.etapa }}</p>
+          </div>
+          <div class="col-md-3">
+            <p class="text-muted mb-1">Data</p>
+            <p class="fw-semibold">{{ encontro.data|date:"d/m/Y" }}</p>
+          </div>
+          <div class="col-md-3">
+            <p class="text-muted mb-1">Quadrante</p>
+            <p class="fw-semibold">{{ encontro.quadrante|default:"-" }}</p>
+          </div>
+          <div class="col-md-3">
+            <p class="text-muted mb-1">Paróquia</p>
+            <p class="fw-semibold">{{ encontro.paroquia.nome|default:"-" }}</p>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <p class="text-muted mb-1">Unidade</p>
+            <p><span class="badge bg-label-primary">{{ encontro.unidade.nome }}</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Casais do Encontro -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+          <i class="ri ri-group-line me-2"></i>Casais do Encontro
+          <span class="badge bg-label-secondary ms-2">{{ casais_encontro.count }}</span>
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if can_edit %}
+          <!-- Formulário para adicionar casal -->
+          <form method="post" action="{% url 'encontros:add_casal' encontro.pk %}" class="mb-4">
+            {% csrf_token %}
+            <div class="row g-3 align-items-end">
+              <div class="col-md-5">
+                <label for="{{ form_add_casal.casal.id_for_label }}" class="form-label">Adicionar Casal</label>
+                {{ form_add_casal.casal }}
+              </div>
+              <div class="col-md-4">
+                <label for="{{ form_add_casal.equipe.id_for_label }}" class="form-label">Equipe (opcional)</label>
+                {{ form_add_casal.equipe }}
+              </div>
+              <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100">
+                  <i class="ri ri-add-line me-1"></i>Adicionar
+                </button>
+              </div>
+            </div>
+          </form>
+        {% endif %}
+
+        {% if casais_encontro %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Casal</th>
+                  <th>Equipe</th>
+                  {% if can_edit %}
+                    <th style="width: 100px;">Ações</th>
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for ce in casais_encontro %}
+                  <tr>
+                    <td>{{ ce.casal.ele }} e {{ ce.casal.ela }}</td>
+                    <td>{{ ce.equipe.nome|default:"-" }}</td>
+                    {% if can_edit %}
+                      <td>
+                        <form method="post" action="{% url 'encontros:remove_casal' encontro.pk ce.casal.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover" onclick="return confirm('Deseja remover este casal do encontro?');">
+                            <i class="ri ri-close-line"></i>
+                          </button>
+                        </form>
+                      </td>
+                    {% endif %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="ri ri-group-line ri-3x text-secondary"></i>
+            <p class="mt-2 text-muted">Nenhum casal vinculado a este encontro.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <a href="{% url 'encontros:list' %}" class="btn btn-outline-secondary w-100">
+          <i class="ri ri-arrow-left-line me-1"></i>Voltar para Lista
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  // Select2 para casal com busca AJAX
+  $('#id_casal').select2({
+    theme: 'bootstrap-5',
+    placeholder: 'Digite nome, e-mail ou telefone para buscar...',
+    allowClear: false,
+    minimumInputLength: 2,
+    ajax: {
+      url: '{% url "casais:api_search" %}',
+      dataType: 'json',
+      delay: 300,
+      data: function(params) {
+        return {
+          q: params.term
+        };
+      },
+      processResults: function(data) {
+        return {
+          results: data.casais.map(function(casal) {
+            let text = casal.display;
+            
+            // Adicionar informações extras
+            let extras = [];
+            if (casal.email_ele) extras.push('E-mail dele: ' + casal.email_ele);
+            if (casal.email_ela) extras.push('E-mail dela: ' + casal.email_ela);
+            if (casal.telefone_ele) extras.push('Tel dele: ' + casal.telefone_ele);
+            if (casal.telefone_ela) extras.push('Tel dela: ' + casal.telefone_ela);
+            
+            if (extras.length > 0) {
+              text += ' (' + extras.join(', ') + ')';
+            }
+            
+            return {
+              id: casal.id,
+              text: text
+            };
+          })
+        };
+      },
+      cache: true
+    },
+    language: {
+      inputTooShort: function() {
+        return "Digite ao menos 2 caracteres para buscar";
+      },
+      searching: function() {
+        return "Buscando...";
+      },
+      noResults: function() {
+        return "Nenhum casal encontrado";
+      },
+      errorLoading: function() {
+        return "Erro ao buscar casais";
+      }
+    }
+  });
+
+  // Select2 para equipe
+  $('#id_equipe').select2({
+    theme: 'bootstrap-5',
+    placeholder: 'Selecione uma equipe (opcional)',
+    allowClear: true,
+    language: {
+      noResults: function() {
+        return "Nenhuma equipe encontrada";
+      }
+    }
+  });
+});
+</script>
+{% endblock extra_js %}

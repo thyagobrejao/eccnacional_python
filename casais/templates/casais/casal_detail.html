@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-lg-8">
+    <!-- Informações do Casal -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">{{ casal }}</h4>
+        <div class="d-flex gap-2">
+          <a href="{% url 'casais:update' casal.pk %}" class="btn btn-outline-primary btn-sm">
+            <i class="ri ri-edit-line me-1"></i>Editar
+          </a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 text-center mb-3">
+            {% if casal.foto %}
+              <img src="{{ casal.foto.url }}" alt="{{ casal }}" class="rounded img-fluid" style="max-width: 200px; max-height: 200px; object-fit: cover;">
+            {% else %}
+              <div class="rounded bg-label-secondary d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
+                <i class="ri ri-team-line" style="font-size: 4rem;"></i>
+              </div>
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <div class="row mb-3">
+              <div class="col-6">
+                <p class="text-muted mb-1">Ele</p>
+                <p class="fw-semibold">{{ casal.ele }}</p>
+              </div>
+              <div class="col-6">
+                <p class="text-muted mb-1">Ela</p>
+                <p class="fw-semibold">{{ casal.ela }}</p>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <p class="text-muted mb-1">E-mail dele</p>
+                <p>{{ casal.email_ele|default:"-" }}</p>
+              </div>
+              <div class="col-6">
+                <p class="text-muted mb-1">E-mail dela</p>
+                <p>{{ casal.email_ela|default:"-" }}</p>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <p class="text-muted mb-1">Telefone dele</p>
+                <p>{{ casal.telefone_ele|default:"-" }}</p>
+              </div>
+              <div class="col-6">
+                <p class="text-muted mb-1">Telefone dela</p>
+                <p>{{ casal.telefone_ela|default:"-" }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <p class="text-muted mb-1">Paróquia</p>
+                <p>{{ casal.paroquia.nome|default:"-" }}</p>
+              </div>
+            </div>
+            {% if casal.obs %}
+              <div class="row mt-3">
+                <div class="col-12">
+                  <p class="text-muted mb-1">Observações</p>
+                  <p class="text-secondary">{{ casal.obs }}</p>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Encontros -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="ri ri-calendar-event-line me-2"></i>Encontros Participados
+          <span class="badge bg-label-primary ms-2">{{ casal_encontros.count }}</span>
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if casal_encontros %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Encontro</th>
+                  <th>Data</th>
+                  <th>Etapa</th>
+                  <th>Paróquia</th>
+                  <th>Equipe</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ce in casal_encontros %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'encontros:detail' ce.encontro.pk %}">{{ ce.encontro.nome }}</a>
+                    </td>
+                    <td>{{ ce.encontro.data|date:"d/m/Y" }}</td>
+                    <td>{{ ce.encontro.etapa }}</td>
+                    <td>{{ ce.encontro.paroquia.nome|default:"-" }}</td>
+                    <td>
+                      {% if ce.equipe %}
+                        <span class="badge bg-label-info">{{ ce.equipe.nome }}</span>
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="ri ri-calendar-event-line ri-3x text-secondary"></i>
+            <p class="mt-2 text-muted">Este casal ainda não participou de nenhum encontro.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Equipes -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="ri ri-team-line me-2"></i>Equipes Participadas
+          <span class="badge bg-label-success ms-2">{{ equipes|length }}</span>
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if equipes %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for equipe in equipes %}
+              <span class="badge bg-label-success" style="font-size: 0.9rem; padding: 8px 12px;">
+                {{ equipe.nome }}
+              </span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="ri ri-team-line ri-3x text-secondary"></i>
+            <p class="mt-2 text-muted">Este casal ainda não participou de nenhuma equipe.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <a href="{% url 'casais:list' %}" class="btn btn-outline-secondary w-100 mb-2">
+          <i class="ri ri-arrow-left-line me-1"></i>Voltar para Lista
+        </a>
+        <a href="{% url 'casais:update' casal.pk %}" class="btn btn-primary w-100">
+          <i class="ri ri-edit-line me-1"></i>Editar Casal
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

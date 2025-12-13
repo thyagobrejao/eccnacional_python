@@ -1,0 +1,89 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR" data-bs-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - ECC Nacional</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/favicon.ico' %}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      max-width: 420px;
+      width: 100%;
+      border-radius: 1rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .login-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 1rem 1rem 0 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    .login-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .login-header p {
+      margin: 0.5rem 0 0 0;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card login-card mx-auto">
+      <div class="login-header">
+        <h1>ECC Nacional</h1>
+        <p>Encontro de Casais com Cristo</p>
+      </div>
+      <div class="card-body p-4">
+        <h4 class="mb-4 text-center">Entrar no Sistema</h4>
+
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            <strong>Erro:</strong> Usuário ou senha inválidos.
+          </div>
+        {% endif %}
+
+        {% if next %}
+          {% if user.is_authenticated %}
+            <div class="alert alert-warning">
+              Você não tem permissão para acessar esta página.
+            </div>
+          {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="username" class="form-label">Email</label>
+            <input type="text" name="username" id="username" class="form-control" placeholder="Digite seu email" required autofocus>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Senha</label>
+            <input type="password" name="password" id="password" class="form-control" placeholder="Digite sua senha" required>
+          </div>
+          <input type="hidden" name="next" value="{{ next }}">
+          <button type="submit" class="btn btn-primary w-100 py-2">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

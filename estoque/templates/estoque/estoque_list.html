@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+        {% if unidades|length == 1 %}
+          <span class="badge bg-label-primary">
+            <i class="ri ri-building-line me-1"></i>{{ unidades.0.nome }}
+          </span>
+        {% elif unidades|length > 1 %}
+          <span class="badge bg-label-info">
+            <i class="ri ri-building-line me-1"></i>{{ unidades|length }} unidades
+          </span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        {% if not unidades %}
+          <div class="text-center py-5">
+            <i class="ri ri-error-warning-line ri-4x text-warning"></i>
+            <p class="mt-3 text-muted">Você não está vinculado a nenhuma unidade.</p>
+          </div>
+        {% elif estoque_items %}
+          <div class="table-responsive">
+            <table class="table table-hover" id="estoque-table">
+              <thead>
+                <tr>
+                  {% if multiple_unidades %}
+                    <th>Unidade</th>
+                  {% endif %}
+                  <th>Material</th>
+                  <th class="text-end" style="width: 160px;">Valor (R$)</th>
+                  <th class="text-center" style="width: 180px;">Quantidade</th>
+                  <th style="width: 120px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in estoque_items %}
+                  <tr data-material-id="{{ item.material.pk }}" data-unidade-id="{{ item.unidade.pk }}">
+                    {% if multiple_unidades %}
+                      <td>
+                        <span class="badge bg-label-secondary">{{ item.unidade.nome }}</span>
+                      </td>
+                    {% endif %}
+                    <td>{{ item.material.descricao }}</td>
+                    <td class="text-end">
+                      {% if item.valor %}
+                        <span class="{% if item.valor_origem %}text-muted{% endif %}">
+                          R$ {{ item.valor|floatformat:2 }}
+                        </span>
+                        {% if item.valor_origem %}
+                          <br>
+                          <small class="text-info" title="Valor herdado de {{ item.valor_origem.nome }}">
+                            <i class="ri ri-arrow-up-line"></i> {{ item.valor_origem.nome }}
+                          </small>
+                        {% endif %}
+                      {% else %}
+                        <span class="text-muted">-</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      <input 
+                        type="number" 
+                        class="form-control form-control-sm quantidade-input text-center" 
+                        min="0" 
+                        value="{{ item.quantidade }}"
+                        data-original="{{ item.quantidade }}"
+                        style="width: 100px; display: inline-block;"
+                      >
+                    </td>
+                    <td>
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-success btn-salvar" 
+                        data-url="{% url 'estoque:update' item.material.pk %}"
+                        data-unidade-id="{{ item.unidade.pk }}"
+                        disabled
+                      >
+                        <i class="ri ri-save-line me-1"></i>Salvar
+                      </button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="ri ri-archive-line ri-4x text-secondary"></i>
+            <p class="mt-3 text-muted">Nenhum material cadastrado no sistema.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  // Habilitar/desabilitar botão quando quantidade muda
+  $('.quantidade-input').on('input', function() {
+    const input = $(this);
+    const row = input.closest('tr');
+    const btn = row.find('.btn-salvar');
+    const original = Number.parseInt(input.data('original'), 10) || 0;
+    const current = Number.parseInt(input.val(), 10) || 0;
+    
+    btn.prop('disabled', original === current);
+  });
+
+  // Salvar quantidade via AJAX
+  $('.btn-salvar').on('click', function() {
+    const btn = $(this);
+    const row = btn.closest('tr');
+    const input = row.find('.quantidade-input');
+    const url = btn.data('url');
+    const unidadeId = btn.data('unidade-id');
+    const quantidade = input.val();
+    const csrfToken = '{{ csrf_token }}';
+
+    btn.prop('disabled', true).html('<i class="ri ri-loader-4-line ri-spin me-1"></i>Salvando...');
+
+    $.ajax({
+      url: url,
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      data: {
+        quantidade: quantidade,
+        unidade_id: unidadeId,
+        csrfmiddlewaretoken: csrfToken
+      },
+      success: function(response) {
+        if (response.success) {
+          input.data('original', response.quantidade);
+          btn.html('<i class="ri ri-check-line me-1"></i>Salvo!');
+          
+          // Mostrar toast de sucesso
+          showToast('success', response.message);
+          
+          setTimeout(function() {
+            btn.html('<i class="ri ri-save-line me-1"></i>Salvar');
+          }, 2000);
+        } else {
+          showToast('error', response.error || 'Erro ao salvar');
+          btn.prop('disabled', false).html('<i class="ri ri-save-line me-1"></i>Salvar');
+        }
+      },
+      error: function(xhr) {
+        const error = xhr.responseJSON?.error || 'Erro ao salvar. Tente novamente.';
+        showToast('error', error);
+        btn.prop('disabled', false).html('<i class="ri ri-save-line me-1"></i>Salvar');
+      }
+    });
+  });
+
+  function showToast(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'ri-check-line' : 'ri-close-line';
+    
+    const toast = $(`
+      <div class="alert ${alertClass} alert-dismissible position-fixed" role="alert" 
+           style="top: 80px; right: 20px; z-index: 9999; min-width: 300px;">
+        <i class="ri ${icon} me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `);
+    
+    $('body').append(toast);
+    
+    setTimeout(function() {
+      toast.fadeOut(300, function() { $(this).remove(); });
+    }, 3000);
+  }
+});
+</script>
+{% endblock extra_js %}

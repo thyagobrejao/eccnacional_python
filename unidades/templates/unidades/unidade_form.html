@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label for="{{ form.nome.id_for_label }}" class="form-label">Nome</label>
+              {{ form.nome }}
+              {% if form.nome.errors %}
+                <div class="text-danger small">{{ form.nome.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.digito.id_for_label }}" class="form-label">Dígito</label>
+              {{ form.digito }}
+              {% if form.digito.errors %}
+                <div class="text-danger small">{{ form.digito.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.tipo.id_for_label }}" class="form-label">Tipo</label>
+              {{ form.tipo }}
+              {% if form.tipo.errors %}
+                <div class="text-danger small">{{ form.tipo.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.parent.id_for_label }}" class="form-label">Unidade Pai</label>
+              {{ form.parent }}
+              {% if form.parent.errors %}
+                <div class="text-danger small">{{ form.parent.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="{{ form.vencimento.id_for_label }}" class="form-label">Vencimento (dias)</label>
+              {{ form.vencimento }}
+              {% if form.vencimento.errors %}
+                <div class="text-danger small">{{ form.vencimento.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <div class="form-check mt-4">
+                {{ form.status }}
+                <label class="form-check-label" for="{{ form.status.id_for_label }}">Ativo</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check mt-4">
+                {{ form.bloqueado }}
+                <label class="form-check-label" for="{{ form.bloqueado.id_for_label }}">Bloqueado</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'unidades:list' %}" class="btn btn-outline-secondary">
+              <i class="ri ri-arrow-left-line me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="ri ri-save-line me-1"></i>Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

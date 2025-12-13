@@ -1,0 +1,221 @@
+{% extends "blog/base.html" %}
+{% block title %}
+    {{ page_title }} - ECC Nacional
+{% endblock title %}
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        {% load static %}
+        <img src="{% static 'assets/img/cropped-fundo.jpg' %}"
+             alt="ECC Nacional"
+             class="img-fluid"
+             width="100%%"
+             height="auto">
+    </section>
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Notícias Section -->
+                <section id="noticias">
+                    <div class="container-fluid">
+                        <!-- Header da Seção -->
+                        <div class="row mb-5">
+                            <div class="col-12 text-center">
+                                <h2 class="fw-bold text-primary mb-3">
+                                    <i class="fas fa-newspaper me-2"></i>Notícias
+                                </h2>
+                            </div>
+                        </div>
+                        <!-- Caixa de Pesquisa -->
+                        <div class="row mb-4">
+                            <div class="col-lg-8 mx-auto">
+                                <form method="get" class="d-flex shadow-sm">
+                                    <input type="text"
+                                           name="search"
+                                           class="form-control form-control-lg border-0"
+                                           placeholder="🔍 Pesquisar notícias..."
+                                           value="{{ search_query }}">
+                                    <button type="submit" class="btn btn-primary btn-lg px-4">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    {% if search_query %}
+                                        <a href="{% url 'blog:home' %}"
+                                           class="btn btn-outline-secondary btn-lg ms-2">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                        {% if search_query %}
+                            <div class="row mb-4">
+                                <div class="col-12 text-center">
+                                    <div class="alert alert-info d-inline-block">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Resultados para: <strong>"{{ search_query }}"</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="row">
+                            <!-- Área Principal de Notícias -->
+                            <div class="col-lg-9">
+                                <div class="row g-4">
+                                    {% for noticia in noticias %}
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="card h-100 shadow-sm border-0 hover-card">
+                                                {% if noticia.imagem_principal %}
+                                                    <img src="{{ noticia.imagem_principal.url }}"
+                                                         class="img-fluid"
+                                                         alt="{{ noticia.titulo }}"
+                                                         width="100%"
+                                                         height="auto">
+                                                {% else %}
+                                                    {% load static %}
+                                                    <img src="{% static 'assets/img/brasao_ecc.png' %}"
+                                                         class="img-fluid"
+                                                         alt="Brasão ECC"
+                                                         width="100%"
+                                                         height="auto">
+                                                {% endif %}
+                                                <div class="card-body d-flex flex-column p-4">
+                                                    <h5 class="card-title fw-bold mb-3">{{ noticia.titulo }}</h5>
+                                                    <p class="card-text text-muted flex-grow-1 mb-3">{{ noticia.content|striptags|truncatewords:20|safe }}</p>
+                                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar me-1"></i>
+                                                            {{ noticia.data_criacao|date:"d/m/Y" }}
+                                                        </small>
+                                                        <a href="{{ noticia.get_absolute_url }}"
+                                                           class="btn btn-primary btn-sm px-3">
+                                                            Ler mais <i class="fas fa-arrow-right ms-1"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <div class="col-12">
+                                            <div class="card border-0 shadow-sm text-center p-5">
+                                                <div class="card-body">
+                                                    <i class="fas fa-newspaper fa-4x text-muted mb-4"></i>
+                                                    {% if search_query %}
+                                                        <h4 class="text-muted mb-3">Nenhuma notícia encontrada</h4>
+                                                        <p class="text-muted mb-4">Tente pesquisar com outros termos ou palavras-chave diferentes.</p>
+                                                        <a href="{% url 'blog:home' %}" class="btn btn-primary">
+                                                            <i class="fas fa-arrow-left me-2"></i>Ver todas as notícias
+                                                        </a>
+                                                    {% else %}
+                                                        <h4 class="text-muted mb-3">Nenhuma notícia disponível</h4>
+                                                        <p class="text-muted">Novas notícias serão publicadas em breve. Fique atento!</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- Sidebar com Links Externos (apenas quando há notícias) -->
+                            <div class="col-lg-3">
+                                <div class="d-grid gap-3">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">Estrutura de Direção</a>
+                                        <a href="#" class="list-group-item list-group-item-action">Secretaria Nacional</a>
+                                        <a href="#" class="list-group-item list-group-item-action">Regionais do ECC</a>
+                                        <a href="#" class="list-group-item list-group-item-action">Estatísticas</a>
+                                        <a href="#" class="list-group-item list-group-item-action">Fale Conosco</a>
+                                    </div>
+                                    <a href="https://www.ecc.org.br"
+                                       target="_blank"
+                                       class="btn btn-outline-success btn-lg">
+                                        <i class="fas fa-book-open me-2"></i>Pedido de Material
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Paginação -->
+                        {% if noticias.has_other_pages %}
+                            <div class="row mt-5">
+                                <div class="col-12">
+                                    <nav aria-label="Paginação de notícias">
+                                        <ul class="pagination justify-content-center">
+                                            {% if noticias.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                                        <i class="fas fa-angle-double-left"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ noticias.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                                        <i class="fas fa-angle-left"></i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% for num in noticias.paginator.page_range %}
+                                                {% if noticias.number == num %}
+                                                    <li class="page-item active">
+                                                        <span class="page-link">{{ num }}</span>
+                                                    </li>
+                                                {% elif num > noticias.number|add:'-3' and num < noticias.number|add:'3' %}
+                                                    <li class="page-item">
+                                                        <a class="page-link"
+                                                           href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if noticias.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ noticias.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                                        <i class="fas fa-angle-right"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ noticias.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                                        <i class="fas fa-angle-double-right"></i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script>
+// Smooth scrolling para links internos
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Navbar background on scroll
+window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.style.background = 'rgba(30, 64, 175, 0.95)';
+        navbar.style.backdropFilter = 'blur(10px)';
+    } else {
+        navbar.style.background = 'linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%)';
+        navbar.style.backdropFilter = 'none';
+    }
+});
+    </script>
+{% endblock extra_js %}

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+        <span class="badge bg-{% if unidade.tipo == 1 %}primary{% elif unidade.tipo == 2 %}info{% elif unidade.tipo == 3 %}success{% elif unidade.tipo == 4 %}warning{% else %}secondary{% endif %} fs-6">
+          {{ unidade.get_tipo_display }}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Dígito:</strong>
+            <p class="mb-0">{{ unidade.digito|default:"-" }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Vencimento:</strong>
+            <p class="mb-0">{{ unidade.vencimento }} dias</p>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Status:</strong>
+            <p class="mb-0">
+              {% if unidade.status %}
+                <span class="badge bg-success">Ativo</span>
+              {% else %}
+                <span class="badge bg-danger">Inativo</span>
+              {% endif %}
+              {% if unidade.bloqueado %}
+                <span class="badge bg-warning">Bloqueado</span>
+              {% endif %}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <strong>Unidade Pai:</strong>
+            <p class="mb-0">{{ unidade.parent|default:"-" }}</p>
+          </div>
+        </div>
+        <hr>
+        <a href="{% url 'unidades:update' unidade.pk %}" class="btn btn-outline-primary">
+          <i class="ri ri-edit-line me-1"></i>Editar Unidade
+        </a>
+        <a href="{% url 'unidades:list' %}" class="btn btn-outline-secondary">
+          <i class="ri ri-arrow-left-line me-1"></i>Voltar
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="ri ri-group-line me-2"></i>Usuários da Unidade
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if user_unidades %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for uu in user_unidades %}
+                  <tr class="{% if not uu.status %}table-secondary{% endif %}">
+                    <td>{{ uu.user.get_full_name|default:uu.user.username }}</td>
+                    <td>{{ uu.user.email }}</td>
+                    <td>
+                      {% if uu.status %}
+                        <span class="badge bg-success">Ativo</span>
+                      {% else %}
+                        <span class="badge bg-secondary">Inativo</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if uu.status %}
+                        <a href="{% url 'unidades:update_user' uu.user.pk %}?unidade_id={{ unidade.pk }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                           <i class="ri ri-edit-line"></i>
+                        </a>
+                        <form method="post" action="{% url 'unidades:remove_user' uu.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover" onclick="return confirm('Deseja remover este usuário da unidade?');">
+                            <i class="ri ri-user-unfollow-line"></i>
+                          </button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Nenhum usuário vinculado a esta unidade.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="ri ri-user-add-line me-2"></i>Adicionar Usuário
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'unidades:add_user' unidade.pk %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">{{ add_user_form.email.label }}</label>
+            {{ add_user_form.email }}
+            <div class="form-text">Se o email não existir, um novo usuário será criado.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ add_user_form.first_name.label }}</label>
+            {{ add_user_form.first_name }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ add_user_form.last_name.label }}</label>
+            {{ add_user_form.last_name }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="ri ri-user-add-line me-1"></i>Adicionar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js"></script>
+<script>
+  $(document).ready(function(){
+    var phoneMaskBehavior = function (val) {
+      return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
+    },
+    options = {
+      onKeyPress: function(val, e, field, options) {
+          field.mask(phoneMaskBehavior.apply({}, arguments), options);
+      }
+    };
+    
+    // Aplica a mascara inteligente para campos que tem a mascara de telefone padrao
+    $('input[data-mask="(00) 00000-0000"]').mask(phoneMaskBehavior, options);
+    
+    // Para outros campos com data-mask (caso existam no futuro), mantem o padrao simples
+    $('input[data-mask]').not('[data-mask="(00) 00000-0000"]').each(function() {
+      var input = $(this);
+      input.mask(input.attr('data-mask'));
+    });
+  });
+</script>
+{% endblock extra_js %}

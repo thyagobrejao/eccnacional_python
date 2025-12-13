@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="{{ form.unidade.id_for_label }}" class="form-label">{{ form.unidade.label }} *</label>
+            {{ form.unidade }}
+            {% if form.unidade.errors %}
+              <div class="text-danger small">{{ form.unidade.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label for="{{ form.nome.id_for_label }}" class="form-label">{{ form.nome.label }}</label>
+              {{ form.nome }}
+              {% if form.nome.errors %}
+                <div class="text-danger small">{{ form.nome.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.etapa.id_for_label }}" class="form-label">{{ form.etapa.label }} *</label>
+              {{ form.etapa }}
+              {% if form.etapa.errors %}
+                <div class="text-danger small">{{ form.etapa.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.data.id_for_label }}" class="form-label">{{ form.data.label }} *</label>
+              {{ form.data }}
+              {% if form.data.errors %}
+                <div class="text-danger small">{{ form.data.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.quadrante.id_for_label }}" class="form-label">{{ form.quadrante.label }}</label>
+              {{ form.quadrante }}
+              {% if form.quadrante.errors %}
+                <div class="text-danger small">{{ form.quadrante.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.paroquia.id_for_label }}" class="form-label">{{ form.paroquia.label }}</label>
+            {{ form.paroquia }}
+            {% if form.paroquia.errors %}
+              <div class="text-danger small">{{ form.paroquia.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'encontros:list' %}" class="btn btn-outline-secondary">
+              <i class="ri ri-arrow-left-line me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="ri ri-save-line me-1"></i>Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  // Inicializar Select2 no campo paróquia
+  $('#id_paroquia').select2({
+    theme: 'bootstrap-5',
+    placeholder: 'Selecione uma paróquia',
+    allowClear: true,
+    language: {
+      noResults: function() {
+        return "Nenhuma paróquia encontrada";
+      },
+      searching: function() {
+        return "Buscando...";
+      }
+    }
+  });
+});
+</script>
+{% endblock extra_js %}

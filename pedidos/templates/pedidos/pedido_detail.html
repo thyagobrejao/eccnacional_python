@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+        <span class="badge bg-{% if pedido.status == 0 %}info{% elif pedido.status == 1 %}warning{% elif pedido.status == 2 %}success{% else %}secondary{% endif %} fs-6">
+          {{ pedido.get_status_display }}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Solicitante:</strong>
+            <p class="mb-0">{{ pedido.solicitante }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Unidade:</strong>
+            <p class="mb-0">{{ pedido.unidade }}</p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Cidade:</strong>
+            <p class="mb-0">{{ pedido.cidade }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Telefones:</strong>
+            <p class="mb-0">{{ pedido.telefones|default:"-" }}</p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-8">
+            <strong>Endereço:</strong>
+            <p class="mb-0">{{ pedido.endereco|default:"-" }}</p>
+          </div>
+          <div class="col-md-4">
+            <strong>CEP:</strong>
+            <p class="mb-0">{{ pedido.cep|default:"-" }}</p>
+          </div>
+        </div>
+
+        {% if pedido.codigo_correios %}
+          <div class="row mb-3">
+            <div class="col-12">
+              <strong>Código de Rastreio:</strong>
+              <p class="mb-0">
+                <a href="https://www.linkcorreios.com.br/?id={{ pedido.codigo_correios }}" target="_blank" rel="noopener">
+                  {{ pedido.codigo_correios }}
+                  <i class="ri ri-external-link-line"></i>
+                </a>
+              </p>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if pedido.obs %}
+          <div class="row mb-3">
+            <div class="col-12">
+              <strong>Observações:</strong>
+              <p class="mb-0">{{ pedido.obs }}</p>
+            </div>
+          </div>
+        {% endif %}
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6">
+            <small class="text-muted">
+              <strong>Criado em:</strong> {{ pedido.created_at|date:"d/m/Y H:i" }}
+            </small>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <small class="text-muted">
+              <strong>Atualizado em:</strong> {{ pedido.updated_at|date:"d/m/Y H:i" }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="ri ri-book-open-line me-2"></i>Materiais do Pedido
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if materiais %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Material</th>
+                  <th class="text-center">Quantidade</th>
+                  <th class="text-end">Valor Unitário</th>
+                  <th class="text-end">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in materiais %}
+                  <tr>
+                    <td>{{ item.material.descricao }}</td>
+                    <td class="text-center">{{ item.quantidade }}</td>
+                    <td class="text-end">R$ {{ item.valor_venda }}</td>
+                    <td class="text-end">R$ {{ item.valor_venda|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Nenhum material adicionado a este pedido.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Ações</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'pedidos:update_status' pedido.pk %}">
+          {% csrf_token %}
+          <label class="form-label">Alterar Status</label>
+          <select name="status" class="form-select mb-3">
+            <option value="0" {% if pedido.status == 0 %}selected{% endif %}>Novo</option>
+            <option value="1" {% if pedido.status == 1 %}selected{% endif %}>Recebido</option>
+            <option value="2" {% if pedido.status == 2 %}selected{% endif %}>Realizado</option>
+            <option value="3" {% if pedido.status == 3 %}selected{% endif %}>Cancelado</option>
+          </select>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="ri ri-refresh-line me-1"></i>Atualizar Status
+          </button>
+        </form>
+
+        <hr>
+
+        <a href="{% url 'pedidos:busca' %}" class="btn btn-outline-secondary w-100">
+          <i class="ri ri-arrow-left-line me-1"></i>Voltar para Busca
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

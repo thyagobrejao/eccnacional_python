@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-lg-10">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+      </div>
+      <div class="card-body">
+        <!-- Busca Dinâmica -->
+        <div class="alert alert-info mb-4">
+          <div class="d-flex align-items-center">
+            <i class="ri ri-search-line me-2"></i>
+            <div>
+              <strong>Busca Rápida:</strong> Digite e-mail ou telefone para verificar se o casal já está cadastrado
+            </div>
+          </div>
+          <div class="mt-3">
+            <input 
+              type="text" 
+              class="form-control" 
+              id="searchCasal" 
+              placeholder="Digite e-mail ou telefone para buscar..."
+              autocomplete="off"
+            >
+            <div id="searchResults" class="mt-2"></div>
+          </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.ele.id_for_label }}" class="form-label">{{ form.ele.label }} *</label>
+              {{ form.ele }}
+              {% if form.ele.errors %}
+                <div class="text-danger small">{{ form.ele.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.ela.id_for_label }}" class="form-label">{{ form.ela.label }} *</label>
+              {{ form.ela }}
+              {% if form.ela.errors %}
+                <div class="text-danger small">{{ form.ela.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.email_ele.id_for_label }}" class="form-label">{{ form.email_ele.label }}</label>
+              {{ form.email_ele }}
+              {% if form.email_ele.errors %}
+                <div class="text-danger small">{{ form.email_ele.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.email_ela.id_for_label }}" class="form-label">{{ form.email_ela.label }}</label>
+              {{ form.email_ela }}
+              {% if form.email_ela.errors %}
+                <div class="text-danger small">{{ form.email_ela.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.telefone_ele.id_for_label }}" class="form-label">{{ form.telefone_ele.label }}</label>
+              {{ form.telefone_ele }}
+              {% if form.telefone_ele.errors %}
+                <div class="text-danger small">{{ form.telefone_ele.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.telefone_ela.id_for_label }}" class="form-label">{{ form.telefone_ela.label }}</label>
+              {{ form.telefone_ela }}
+              {% if form.telefone_ela.errors %}
+                <div class="text-danger small">{{ form.telefone_ela.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.paroquia.id_for_label }}" class="form-label">{{ form.paroquia.label }}</label>
+              {{ form.paroquia }}
+              {% if form.paroquia.errors %}
+                <div class="text-danger small">{{ form.paroquia.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.foto.id_for_label }}" class="form-label">{{ form.foto.label }}</label>
+              {{ form.foto }}
+              {% if form.foto.errors %}
+                <div class="text-danger small">{{ form.foto.errors.0 }}</div>
+              {% endif %}
+              {% if form.instance.foto %}
+                <div class="mt-2">
+                  <img src="{{ form.instance.foto.url }}" alt="Foto atual" class="rounded" style="max-width: 200px; max-height: 200px;">
+                </div>
+              {% endif %}
+              <div id="fotoPreview" class="mt-2"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.obs.id_for_label }}" class="form-label">{{ form.obs.label }}</label>
+            {{ form.obs }}
+            {% if form.obs.errors %}
+              <div class="text-danger small">{{ form.obs.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'casais:list' %}" class="btn btn-outline-secondary">
+              <i class="ri ri-arrow-left-line me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="ri ri-save-line me-1"></i>Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+$(document).ready(function() {
+  // Máscara de telefone com 8 ou 9 dígitos
+  $('.phone-mask').mask('(00) 00000-0000');
+
+  // Select2 para paróquia
+  $('#id_paroquia').select2({
+    theme: 'bootstrap-5',
+    placeholder: 'Selecione uma paróquia',
+    allowClear: true
+  });
+
+  // Preview da foto
+  $('#id_foto').on('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        $('#fotoPreview').html(`
+          <img src="${e.target.result}" class="rounded" style="max-width: 200px; max-height: 200px;">
+        `);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Busca dinâmica de casais
+  let searchTimeout;
+  $('#searchCasal').on('input', function() {
+    const query = $(this).val().trim();
+    
+    clearTimeout(searchTimeout);
+    
+    if (query.length < 3) {
+      $('#searchResults').html('');
+      return;
+    }
+
+    $('#searchResults').html('<div class="text-muted"><i class="ri ri-loader-4-line ri-spin"></i> Buscando...</div>');
+
+    searchTimeout = setTimeout(function() {
+      $.ajax({
+        url: '{% url "casais:api_search" %}',
+        data: { q: query },
+        success: function(data) {
+          if (data.casais.length === 0) {
+            $('#searchResults').html('<div class="text-success"><i class="ri ri-check-line"></i> Nenhum casal encontrado. Pode cadastrar!</div>');
+          } else {
+            let html = '<div class="alert alert-warning"><strong>Casais encontrados:</strong><ul class="mb-0 mt-2">';
+            data.casais.forEach(function(casal) {
+              html += `<li>${casal.display}`;
+              if (casal.email_ele) html += ` - E-mail dele: ${casal.email_ele}`;
+              if (casal.email_ela) html += ` - E-mail dela: ${casal.email_ela}`;
+              if (casal.telefone_ele) html += ` - Tel dele: ${casal.telefone_ele}`;
+              if (casal.telefone_ela) html += ` - Tel dela: ${casal.telefone_ela}`;
+              html += `</li>`;
+            });
+            html += '</ul></div>';
+            $('#searchResults').html(html);
+          }
+        },
+        error: function() {
+          $('#searchResults').html('<div class="text-danger">Erro na busca</div>');
+        }
+      });
+    }, 500);
+  });
+});
+</script>
+{% endblock extra_js %}

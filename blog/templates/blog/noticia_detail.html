@@ -1,0 +1,120 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{ noticia.titulo }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'blog:home' %}">Início</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ noticia.titulo|truncatewords:5 }}</li>
+                </ol>
+            </nav>
+            
+            <!-- Artigo da Notícia -->
+            <article class="card shadow-sm">
+                
+                <div class="card-body p-4">
+                    <header class="mb-4">
+                        <h1 class="display-6 fw-bold mb-3">{{ noticia.titulo }}</h1>
+                        <div class="d-flex align-items-center text-muted mb-3">
+                            <i class="fas fa-calendar me-2"></i>
+                            <span>Publicado em {{ noticia.data_criacao|date:"d/m/Y às H:i" }}</span>
+                            {% if noticia.data_atualizacao != noticia.data_criacao %}
+                            <span class="ms-3">
+                                <i class="fas fa-edit me-2"></i>
+                                Atualizado em {{ noticia.data_atualizacao|date:"d/m/Y às H:i" }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% if noticia.especial %}
+                        <div class="mb-3">
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star me-1"></i>Notícia Especial
+                            </span>
+                        </div>
+                        {% endif %}
+                    </header>
+                    
+                    <div class="content">
+                        {{ noticia.content|safe }}
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Botões de Ação -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="{% url 'blog:home' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar às Notícias
+                </a>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Imprimir
+                    </button>
+                    <button class="btn btn-outline-success" onclick="compartilhar()">
+                        <i class="fas fa-share-alt me-2"></i>Compartilhar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+function compartilhar() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ noticia.titulo|escapejs }}',
+            text: '{{ noticia.content|striptags|truncatewords:20|escapejs }}',
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        // Fallback para navegadores que não suportam Web Share API
+        const url = window.location.href;
+        const title = '{{ noticia.titulo|escapejs }}';
+        const text = `Confira esta notícia: ${title}`;
+        
+        // Copiar para clipboard
+        navigator.clipboard.writeText(`${text} - ${url}`).then(() => {
+            alert('Link copiado para a área de transferência!');
+        }).catch(() => {
+            // Fallback manual
+            const textArea = document.createElement('textarea');
+            textArea.value = `${text} - ${url}`;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Link copiado para a área de transferência!');
+        });
+    }
+}
+
+// Melhorar a experiência de leitura
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar classes do Bootstrap às tabelas do CKEditor
+    const tables = document.querySelectorAll('.content table');
+    tables.forEach(table => {
+        table.classList.add('table', 'table-striped', 'table-responsive');
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('table-responsive');
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+    
+    // Adicionar classes às imagens do CKEditor
+    const images = document.querySelectorAll('.content img');
+    images.forEach(img => {
+        img.classList.add('img-fluid', 'rounded', 'shadow-sm');
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+    });
+});
+</script>
+{% endblock extra_js %}

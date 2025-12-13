@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <h4 class="card-title mb-0">{{ page_title }}</h4>
+          {% if user_unidades|length > 1 %}
+            <select class="form-select form-select-sm" id="unidadeFilter" style="width: 250px;">
+              {% for unidade in user_unidades %}
+                <option value="{{ unidade.id }}" {% if unidade_selecionada and unidade.id == unidade_selecionada.id %}selected{% endif %}>
+                  {{ unidade.nome }}
+                </option>
+              {% endfor %}
+            </select>
+          {% elif unidade_selecionada %}
+            <span class="badge bg-label-primary">{{ unidade_selecionada.nome }}</span>
+          {% endif %}
+        </div>
+        {% if is_nacional %}
+          <a href="{% url 'materiais:create' %}" class="btn btn-primary btn-sm">
+            <i class="ri ri-add-line me-1"></i>Novo Material
+          </a>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        {% if materiais %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Estoque</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for material in materiais %}
+                  <tr>
+                    <td>{{ material.descricao }}</td>
+                    <td>
+                      {% if material.valor_efetivo %}
+                        <span class="{% if material.valor_origem %}text-muted{% endif %}">
+                          R$ {{ material.valor_efetivo|floatformat:2 }}
+                        </span>
+                        {% if material.valor_origem %}
+                          <br>
+                          <small class="text-info" title="Valor herdado de {{ material.valor_origem.nome }}">
+                            <i class="ri ri-arrow-up-line"></i> {{ material.valor_origem.nome }}
+                          </small>
+                        {% endif %}
+                      {% elif material.preco and material.preco.valor %}
+                        R$ {{ material.preco.valor|floatformat:2 }}
+                      {% else %}
+                        <span class="text-muted">Não definido</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if material.preco %}
+                        {{ material.preco.quantidade }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td>
+                      <a href="{% url 'materiais:set_price' material.pk %}" class="btn btn-sm btn-outline-success" title="Definir Preço">
+                        <i class="ri ri-money-dollar-circle-line"></i>
+                      </a>
+                      {% if is_nacional %}
+                        <a href="{% url 'materiais:update' material.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                          <i class="ri ri-edit-line"></i>
+                        </a>
+                        <form method="post" action="{% url 'materiais:delete' material.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir" onclick="return confirm('Deseja excluir este material?');">
+                            <i class="ri ri-delete-bin-line"></i>
+                          </button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="ri ri-box-3-line ri-4x text-secondary"></i>
+            <p class="mt-3 text-muted">Nenhum material cadastrado.</p>
+            {% if is_nacional %}
+              <a href="{% url 'materiais:create' %}" class="btn btn-primary">
+                <i class="ri ri-add-line me-1"></i>Cadastrar Primeiro Material
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  // Recarregar página ao trocar unidade
+  $('#unidadeFilter').on('change', function() {
+    const unidadeId = $(this).val();
+    window.location.href = '?unidade=' + unidadeId;
+  });
+});
+</script>
+{% endblock extra_js %}

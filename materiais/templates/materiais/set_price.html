@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info mb-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <i class="ri ri-building-line me-2"></i>
+              Definindo preço para a unidade:
+            </div>
+            {% if user_unidades|length > 1 %}
+              <select class="form-select form-select-sm" id="unidadeFilter" style="width: 250px;">
+                {% for unidade_item in user_unidades %}
+                  <option value="{{ unidade_item.id }}" {% if unidade and unidade.id == unidade_item.id %}selected{% endif %}>
+                    {{ unidade_item.nome }}
+                  </option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <strong>{{ unidade.nome }}</strong>
+            {% endif %}
+          </div>
+        </div>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="unidade_id" value="{{ unidade.id }}">
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.valor.id_for_label }}" class="form-label">{{ form.valor.label }}</label>
+              {{ form.valor }}
+              {% if form.valor.errors %}
+                <div class="text-danger small">{{ form.valor.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.quantidade.id_for_label }}" class="form-label">{{ form.quantidade.label }}</label>
+              {{ form.quantidade }}
+              {% if form.quantidade.errors %}
+                <div class="text-danger small">{{ form.quantidade.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'materiais:list' %}" class="btn btn-outline-secondary">
+              <i class="ri ri-arrow-left-line me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-success">
+              <i class="ri ri-save-line me-1"></i>Salvar Preço
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  // Recarregar página ao trocar unidade
+  $('#unidadeFilter').on('change', function() {
+    const unidadeId = $(this).val();
+    const materialId = {{ material.id }};
+    window.location.href = '/gestao/materiais/' + materialId + '/preco/?unidade=' + unidadeId;
+  });
+});
+</script>
+{% endblock extra_js %}

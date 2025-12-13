@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Home - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title mb-0">Bem-vindo ao ECC Nacional</h4>
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          Esta é a página inicial do sistema ECC Nacional. Aqui você pode acessar todas as funcionalidades do sistema.
+        </p>
+        
+        <div class="row mt-4">
+          <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white">
+              <div class="card-body text-center">
+                <i class="ri ri-group-line icon-48px mb-3"></i>
+                <h5 class="card-title">Casais</h5>
+                <p class="card-text">Gerencie os casais cadastrados no sistema.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white">
+              <div class="card-body text-center">
+                <i class="ri ri-calendar-event-line icon-48px mb-3"></i>
+                <h5 class="card-title">Encontros</h5>
+                <p class="card-text">Organize e acompanhe os encontros.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white">
+              <div class="card-body text-center">
+                <i class="ri ri-map-pin-line icon-48px mb-3"></i>
+                <h5 class="card-title">Municípios</h5>
+                <p class="card-text">Gerencie os municípios participantes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="card bg-warning text-white">
+              <div class="card-body text-center">
+                <i class="ri ri-book-line icon-48px mb-3"></i>
+                <h5 class="card-title">Materiais</h5>
+                <p class="card-text">Acesse os materiais disponíveis.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-3">
+            <div class="card bg-danger text-white">
+              <div class="card-body text-center">
+                <i class="ri ri-shopping-cart-line icon-48px mb-3"></i>
+                <h5 class="card-title">Pedidos</h5>
+                <p class="card-text">Gerencie os pedidos do sistema.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-3">
+            <div class="card bg-secondary text-white">
+              <div class="card-body text-center">
+                <i class="ri ri-article-line icon-48px mb-3"></i>
+                <h5 class="card-title">Blog</h5>
+                <p class="card-text">Publique e gerencie artigos do blog.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

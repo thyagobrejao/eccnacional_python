@@ -1,0 +1,178 @@
+{% extends "blog/admin/base_admin.html" %}
+{% load static %}
+
+{% block page_title %}
+    {% if object %}
+        Editar Notícia
+    {% else %}
+        Nova Notícia
+    {% endif %}
+{% endblock page_title %}
+
+{% block page_actions %}
+    <a href="{% url "blog:admin_noticia_list" %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+{% endblock page_actions %}
+
+{% block extra_css %}
+    {{ form.media.css }}
+{% endblock extra_css %}
+
+{% block extra_js %}
+    {{ form.media.js }}
+{% endblock extra_js %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.titulo.id_for_label }}" class="form-label">
+                            {{ form.titulo.label }}
+                        </label>
+                        {{ form.titulo }}
+                        {% if form.titulo.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.titulo.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            {{ form.content.label }}
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.content.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.imagem_principal.id_for_label }}" class="form-label">
+                            {{ form.imagem_principal.label }}
+                        </label>
+                        {{ form.imagem_principal }}
+                        {% if form.imagem_principal.help_text %}
+                            <div class="form-text">{{ form.imagem_principal.help_text }}</div>
+                        {% endif %}
+                        {% if form.imagem_principal.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.imagem_principal.errors.0 }}
+                            </div>
+                        {% endif %}
+                        {% if object.imagem_principal %}
+                             <div class="mt-2">
+                                 <small class="text-muted">Imagem atual:</small><br>
+                                 <img src="{{ object.imagem_principal.url }}" alt="Imagem atual" class="img-thumbnail preview-image" width="200" height="150">
+                             </div>
+                         {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                {{ form.especial }}
+                                <label class="form-check-label" for="{{ form.especial.id_for_label }}">
+                                    {{ form.especial.label }}
+                                </label>
+                                {% if form.especial.help_text %}
+                                    <div class="form-text">{{ form.especial.help_text }}</div>
+                                {% endif %}
+                                {% if form.especial.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.especial.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                {{ form.ativa }}
+                                <label class="form-check-label" for="{{ form.ativa.id_for_label }}">
+                                    {{ form.ativa.label }}
+                                </label>
+                                {% if form.ativa.help_text %}
+                                    <div class="form-text">{{ form.ativa.help_text }}</div>
+                                {% endif %}
+                                {% if form.ativa.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.ativa.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url "blog:admin_noticia_list" %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Atualizar{% else %}Criar{% endif %} Notícia
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Informações
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Editor de Texto:</strong>
+                    <p class="small text-muted mb-2">
+                        Use o editor para formatar o texto e inserir imagens. 
+                        As imagens serão automaticamente enviadas para o servidor.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Slug:</strong>
+                    <p class="small text-muted mb-2">
+                        O slug será gerado automaticamente baseado no título.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Notícia Especial:</strong>
+                    <p class="small text-muted mb-2">
+                        Notícias especiais podem ser destacadas no site.
+                    </p>
+                </div>
+                
+                {% if object %}
+                    <div class="mb-3">
+                        <strong>Criada em:</strong>
+                        <p class="small text-muted mb-2">
+                            {{ object.data_criacao|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Última atualização:</strong>
+                        <p class="small text-muted mb-2">
+                            {{ object.data_atualizacao|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
