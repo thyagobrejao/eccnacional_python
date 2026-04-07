@@ -25,6 +25,7 @@ import uuid
 import boto3
 import pymysql
 from django.conf import settings
+from django.db import connection
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
@@ -109,6 +110,7 @@ def _unique_slug(base_slug: str) -> str:
 
 class Command(BaseCommand):
     help = "Importa notícias, estatísticas e regionais do MySQL antigo (Laravel)"
+    requires_system_checks = []
 
     # ── Argumentos ────────────────────────────────────────────────────────
     def add_arguments(self, parser):
@@ -135,6 +137,8 @@ class Command(BaseCommand):
         self.dry_run = options["dry_run"]
         self.bucket = settings.AWS_STORAGE_BUCKET_NAME
         self.s3 = _s3_client()
+
+        self._ensure_destination_tables_exist()
 
         try:
             conn = pymysql.connect(
@@ -167,6 +171,22 @@ class Command(BaseCommand):
                 self._import_regionais(conn)
 
         self.stdout.write(self.style.SUCCESS("\nImportação concluída!"))
+
+    def _ensure_destination_tables_exist(self):
+        required_tables = {
+            Noticia._meta.db_table,
+            Estatistica._meta.db_table,
+            Regional._meta.db_table,
+        }
+        existing_tables = set(connection.introspection.table_names())
+        missing_tables = sorted(required_tables - existing_tables)
+
+        if missing_tables:
+            missing_display = ", ".join(missing_tables)
+            raise CommandError(
+                "As tabelas de destino do Django ainda nao existem no PostgreSQL: "
+                f"{missing_display}. Rode 'python manage.py migrate' antes de executar a importacao."
+            )
 
     # ── Notícias ──────────────────────────────────────────────────────────
     def _import_noticias(self, conn):

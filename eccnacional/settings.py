@@ -184,8 +184,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_DIRS = [
-    BASE_DIR / "static_files",
-    BASE_DIR / "static/dist",
+    path for path in [BASE_DIR / "static_files", BASE_DIR / "static/dist"] if path.exists()
+]
+
+SILENCED_SYSTEM_CHECKS = [
+    "django_vite.W001",
 ]
 
 # Vite settings
