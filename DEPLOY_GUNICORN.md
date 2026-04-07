@@ -25,7 +25,7 @@ python manage.py collectstatic --noinput
 ### 3. Testar o Gunicorn manualmente
 
 ```bash
-gunicorn --config /home/thyago/eccnacional/gunicorn.conf.py eccnacional.wsgi:application
+python -m gunicorn --config /home/thyago/eccnacional/gunicorn.conf.py eccnacional.wsgi:application
 ```
 
 ### 4. Publicar a unit do systemd
@@ -40,6 +40,8 @@ sudo systemctl enable eccnacional-gunicorn.service
 sudo systemctl restart eccnacional-gunicorn.service
 sudo systemctl status eccnacional-gunicorn.service
 ```
+
+Se aparecer `status=203/EXEC`, o problema costuma ser o wrapper `/home/thyago/eccnacional/.venv/bin/gunicorn` com shebang quebrado ou sem permissao de execucao. Por isso a unit usa `/home/thyago/eccnacional/.venv/bin/python -m gunicorn`, que elimina essa classe de erro.
 
 ### 5. Conferir o Nginx
 
