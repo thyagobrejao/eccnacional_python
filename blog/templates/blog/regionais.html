@@ -17,11 +17,23 @@
         padding: 20px;
         box-shadow: 0 5px 30px rgba(0,0,0,0.08);
     }
-    .map-wrapper embed {
+    .map-wrapper svg,
+    .map-svg-container {
         width: 100%;
         height: 500px;
         border: none;
         border-radius: 12px;
+    }
+    .map-svg-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .map-svg-container svg {
+        display: block;
+        width: 100%;
+        height: 100%;
     }
     .map-tooltip {
         position: fixed;
@@ -151,7 +163,12 @@
         <!-- Mapa -->
         <div class="col-lg-7">
             <div class="map-wrapper">
-                <embed id="mapa-svg" src="{% static 'assets/mapa.svg' %}" type="image/svg+xml"></embed>
+                <div id="mapa-svg" class="map-svg-container" data-src="{% static 'assets/mapa.svg' %}">
+                    <div class="text-center text-muted">
+                        <div class="spinner-border mb-3" role="status"></div>
+                        <p class="mb-0">Carregando mapa...</p>
+                    </div>
+                </div>
                 <p class="map-hint"><i class="fas fa-hand-pointer me-1"></i>Passe o mouse ou clique em um estado</p>
             </div>
         </div>
@@ -276,45 +293,58 @@ function loadRegional(regionalId) {
 }
 
 window.addEventListener('load', function () {
-    const embed = document.getElementById('mapa-svg');
+    const mapContainer = document.getElementById('mapa-svg');
 
-    function initSVG() {
-        try {
-            const svgDoc = embed.getSVGDocument();
-            if (!svgDoc) return;
-            const paths = svgDoc.documentElement.getElementsByTagName('path');
-            Array.from(paths).forEach(path => {
-                const originalFill = path.getAttribute('fill');
-                const sigla = path.parentNode?.id?.toLowerCase();
+    function initSVG(svgElement) {
+        const paths = svgElement.querySelectorAll('path');
+        paths.forEach(path => {
+            const originalFill = path.getAttribute('fill');
+            const sigla = path.parentNode?.id?.toLowerCase();
 
-                path.style.cursor = 'pointer';
-                path.style.transition = 'fill 0.2s ease';
+            if (!sigla || !ESTADOS[sigla]) {
+                return;
+            }
 
-                path.addEventListener('mouseover', function (e) {
-                    this.style.fill = '#f0abfc';
-                    showTooltip(e.clientX, e.clientY, sigla);
-                });
-                path.addEventListener('mousemove', function (e) {
-                    tooltip.style.left = (e.clientX + 15) + 'px';
-                    tooltip.style.top = (e.clientY + 10) + 'px';
-                });
-                path.addEventListener('mouseout', function () {
-                    this.style.fill = originalFill;
-                    hideTooltip();
-                });
-                path.addEventListener('click', function () {
-                    const data = ESTADOS[sigla];
-                    if (data) loadRegional(data.regional);
-                });
+            path.style.cursor = 'pointer';
+            path.style.transition = 'fill 0.2s ease';
+
+            path.addEventListener('mouseover', function (e) {
+                this.style.fill = '#f0abfc';
+                showTooltip(e.clientX, e.clientY, sigla);
             });
-        } catch (e) {
-            console.warn('SVG not ready yet', e);
-        }
+            path.addEventListener('mousemove', function (e) {
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 10) + 'px';
+            });
+            path.addEventListener('mouseout', function () {
+                this.style.fill = originalFill;
+                hideTooltip();
+            });
+            path.addEventListener('click', function () {
+                const data = ESTADOS[sigla];
+                if (data) loadRegional(data.regional);
+            });
+        });
     }
 
-    embed.addEventListener('load', initSVG);
-    // Fallback: some browsers fire load before the event listener is attached
-    if (embed.getSVGDocument && embed.getSVGDocument()) initSVG();
+    fetch(mapContainer.dataset.src)
+        .then(response => response.ok ? response.text() : Promise.reject(response.status))
+        .then(svgMarkup => {
+            mapContainer.innerHTML = svgMarkup;
+            const svgElement = mapContainer.querySelector('svg');
+            if (!svgElement) {
+                throw new Error('SVG nao encontrado');
+            }
+            initSVG(svgElement);
+        })
+        .catch(error => {
+            console.error('Falha ao carregar mapa SVG', error);
+            mapContainer.innerHTML = `
+                <div class="text-center text-muted px-3">
+                    <i class="fas fa-map-marked-alt fa-2x mb-3 d-block"></i>
+                    <p class="mb-0">Nao foi possivel carregar o mapa interativo.</p>
+                </div>`;
+        });
 });
 </script>
 {% endblock extra_js %}
