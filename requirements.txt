@@ -5,6 +5,7 @@ django-storages[s3]
 django-tinymce
 django-ckeditor-5
 boto3
+cryptography
 psycopg[binary]
 pymysql
 Pillow

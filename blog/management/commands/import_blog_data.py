@@ -21,12 +21,10 @@ Variáveis de ambiente alternativas:
 
 import os
 import uuid
-from datetime import datetime
 
 import boto3
 import pymysql
 from django.conf import settings
-from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
@@ -148,6 +146,13 @@ class Command(BaseCommand):
                 charset="utf8mb4",
                 cursorclass=pymysql.cursors.DictCursor,
             )
+        except RuntimeError as exc:
+            if "cryptography" in str(exc):
+                raise CommandError(
+                    "O servidor MySQL exige autenticacao sha256/caching_sha2_password. "
+                    "Instale a dependencia 'cryptography' no ambiente virtual e rode o comando novamente."
+                ) from exc
+            raise
         except pymysql.Error as exc:
             raise CommandError(f"Erro ao conectar no MySQL: {exc}") from exc
 
