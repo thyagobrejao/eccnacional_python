@@ -6,6 +6,7 @@ django-tinymce
 django-ckeditor-5
 boto3
 cryptography
+gunicorn
 psycopg[binary]
 pymysql
 Pillow
