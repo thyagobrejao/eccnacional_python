@@ -1,0 +1,38 @@
+{% extends "blog/base.html" %}
+{% block title %}Excluir Estatística - ECC Nacional{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .admin-hero {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        padding: 60px 0 40px;
+        margin-top: var(--navbar-height);
+        color: white;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="admin-hero text-center">
+    <div class="container">
+        <h1 class="fw-bold"><i class="fas fa-trash me-2"></i>Excluir Estatística</h1>
+    </div>
+</section>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 text-center">
+            <div class="card border-0 shadow-sm p-4" style="border-radius:20px;">
+                <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                <p class="fw-semibold">Tem certeza que deseja excluir <strong>{{ object }}</strong>?</p>
+                <form method="post" class="d-flex justify-content-center gap-3 mt-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">
+                        <i class="fas fa-trash me-2"></i>Excluir
+                    </button>
+                    <a href="{% url 'blog:estatisticas' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

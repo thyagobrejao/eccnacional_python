@@ -118,15 +118,26 @@
                             <!-- Sidebar com Links Externos (apenas quando há notícias) -->
                             <div class="col-lg-3">
                                 <div class="d-grid gap-3">
-                                    <div class="list-group">
-                                        <a href="#" class="list-group-item list-group-item-action">Estrutura de Direção</a>
-                                        <a href="#" class="list-group-item list-group-item-action">Secretaria Nacional</a>
-                                        <a href="#" class="list-group-item list-group-item-action">Regionais do ECC</a>
-                                        <a href="#" class="list-group-item list-group-item-action">Estatísticas</a>
-                                        <a href="#" class="list-group-item list-group-item-action">Fale Conosco</a>
+                                    <div class="list-group shadow-sm" style="border-radius:12px;overflow:hidden;">
+                                        <a href="{% url 'blog:estrutura' %}" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-sitemap me-2 text-primary"></i>Estrutura de Direção
+                                        </a>
+                                        <a href="{% url 'blog:secretaria' %}" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-users me-2 text-primary"></i>Secretaria Nacional
+                                        </a>
+                                        <a href="{% url 'blog:regionais' %}" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-map-marked-alt me-2 text-primary"></i>Regionais do ECC
+                                        </a>
+                                        <a href="{% url 'blog:estatisticas' %}" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-chart-bar me-2 text-primary"></i>Estatísticas
+                                        </a>
+                                        <a href="{% url 'blog:fale_conosco' %}" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-envelope me-2 text-primary"></i>Fale Conosco
+                                        </a>
                                     </div>
                                     <a href="https://www.ecc.org.br"
                                        target="_blank"
+                                       rel="noopener"
                                        class="btn btn-outline-success btn-lg">
                                         <i class="fas fa-book-open me-2"></i>Pedido de Material
                                     </a>

@@ -57,3 +57,83 @@ class Noticia(models.Model):
     
     def get_absolute_url(self):
         return reverse('blog:noticia_detail', kwargs={'slug': self.slug})
+
+
+def estatistica_imagem_upload_path(instance, filename):
+    environment = getattr(settings, 'ENVIRONMENT', 'development')
+    ext = os.path.splitext(filename)[1]
+    return f"{environment}/estatisticas/imagens/{uuid.uuid4()}{ext}"
+
+
+def estatistica_arquivo_upload_path(instance, filename):
+    environment = getattr(settings, 'ENVIRONMENT', 'development')
+    ext = os.path.splitext(filename)[1]
+    return f"{environment}/estatisticas/arquivos/{uuid.uuid4()}{ext}"
+
+
+class Estatistica(models.Model):
+    ano = models.CharField(max_length=10, verbose_name="Ano")
+    imagem = models.ImageField(
+        upload_to=estatistica_imagem_upload_path,
+        verbose_name="Imagem de Capa",
+    )
+    arquivo = models.FileField(
+        upload_to=estatistica_arquivo_upload_path,
+        verbose_name="Arquivo (PDF)",
+    )
+
+    class Meta:
+        verbose_name = "Estatística"
+        verbose_name_plural = "Estatísticas"
+        ordering = ['-ano']
+
+    def __str__(self):
+        return f"Estatísticas {self.ano}"
+
+
+def regional_imagem_upload_path(instance, filename):
+    environment = getattr(settings, 'ENVIRONMENT', 'development')
+    ext = os.path.splitext(filename)[1]
+    return f"{environment}/regionais/{uuid.uuid4()}{ext}"
+
+
+class Regional(models.Model):
+    REGIONAL_CHOICES = [
+        ('noroeste', 'Noroeste'),
+        ('norte1', 'Norte 1'),
+        ('norte2', 'Norte 2'),
+        ('norte3', 'Norte 3'),
+        ('nordeste1', 'Nordeste 1'),
+        ('nordeste2', 'Nordeste 2'),
+        ('nordeste3', 'Nordeste 3'),
+        ('nordeste4', 'Nordeste 4'),
+        ('nordeste5', 'Nordeste 5'),
+        ('centroOeste', 'Centro-Oeste'),
+        ('oeste1', 'Oeste 1'),
+        ('oeste2', 'Oeste 2'),
+        ('leste1', 'Leste 1'),
+        ('leste2', 'Leste 2'),
+        ('leste3', 'Leste 3'),
+        ('sul1', 'Sul 1'),
+        ('sul2', 'Sul 2'),
+        ('sul3', 'Sul 3'),
+        ('sul4', 'Sul 4'),
+    ]
+    nome = models.CharField(max_length=100, verbose_name="Nome da Regional")
+    regional_id = models.CharField(
+        max_length=50, unique=True, choices=REGIONAL_CHOICES, verbose_name="ID da Regional"
+    )
+    descricao = models.TextField(blank=True, verbose_name="Descrição")
+    casal = models.CharField(max_length=200, blank=True, verbose_name="Casal Responsável")
+    padre = models.CharField(max_length=200, blank=True, verbose_name="Padre / Assistente")
+    imagem = models.ImageField(
+        upload_to=regional_imagem_upload_path, blank=True, null=True, verbose_name="Imagem"
+    )
+
+    class Meta:
+        verbose_name = "Regional"
+        verbose_name_plural = "Regionais"
+        ordering = ['nome']
+
+    def __str__(self):
+        return self.nome

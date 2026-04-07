@@ -1,5 +1,5 @@
 from django import forms
-from .models import Noticia
+from .models import Noticia, Estatistica, Regional
 from tinymce.widgets import TinyMCE
 
 
@@ -48,3 +48,50 @@ class NoticiaForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if field_name not in ['especial', 'ativa']:
                 field.widget.attrs.update({'class': 'form-control'})
+
+
+class ContatoForm(forms.Form):
+    nome = forms.CharField(
+        max_length=100,
+        label="Seu Nome",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Seu nome completo'}),
+    )
+    email = forms.EmailField(
+        label="Seu E-mail",
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'seu@email.com'}),
+    )
+    assunto = forms.CharField(
+        max_length=200,
+        required=False,
+        label="Assunto",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Assunto da mensagem'}),
+    )
+    mensagem = forms.CharField(
+        label="Sua Mensagem",
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 6, 'placeholder': 'Digite sua mensagem...'}),
+    )
+
+
+class EstatisticaForm(forms.ModelForm):
+    class Meta:
+        model = Estatistica
+        fields = ['ano', 'imagem', 'arquivo']
+        widgets = {
+            'ano': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 2024'}),
+            'imagem': forms.FileInput(attrs={'class': 'form-control'}),
+            'arquivo': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+
+class RegionalForm(forms.ModelForm):
+    class Meta:
+        model = Regional
+        fields = ['nome', 'regional_id', 'descricao', 'casal', 'padre', 'imagem']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'regional_id': forms.Select(attrs={'class': 'form-select'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'casal': forms.TextInput(attrs={'class': 'form-control'}),
+            'padre': forms.TextInput(attrs={'class': 'form-control'}),
+            'imagem': forms.FileInput(attrs={'class': 'form-control'}),
+        }

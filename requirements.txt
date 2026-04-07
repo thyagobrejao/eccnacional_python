@@ -1,0 +1,10 @@
+Django==5.2.5
+python-dotenv
+django-vite
+django-storages[s3]
+django-tinymce
+django-ckeditor-5
+boto3
+psycopg[binary]
+pymysql
+Pillow

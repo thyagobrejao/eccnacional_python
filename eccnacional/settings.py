@@ -48,6 +48,18 @@ MESSAGE_TAGS = {
     messages.ERROR: "danger",
 }
 
+CONTACT_INFO = {
+    "organization": "Conselho Nacional do Encontro de Casais com Cristo",
+    "email": os.environ.get("CONTACT_EMAIL", "contato@conselhonacional.com.br"),
+    "phone_display": os.environ.get("CONTACT_PHONE_DISPLAY", "(14) 99640-0862"),
+    "phone_link": os.environ.get("CONTACT_PHONE_LINK", "+5514996400862"),
+    "address_lines": [
+        os.environ.get("CONTACT_ADDRESS_LINE_1", "Rua Maria Jose, 1-34, Apto 72, Centro"),
+        os.environ.get("CONTACT_ADDRESS_LINE_2", "Bauru - SP"),
+        os.environ.get("CONTACT_ADDRESS_LINE_3", "CEP: 17015-440"),
+    ],
+}
+
 
 # Application definition
 
@@ -99,6 +111,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "eccnacional.context_processors.contact_info",
             ],
         },
     },
@@ -110,10 +123,26 @@ WSGI_APPLICATION = "eccnacional.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DB_NAME = os.environ.get("DB_NAME", "eccnacional")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
+DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
+DB_PORT = os.environ.get("DB_PORT", "5432")
+DB_CONN_MAX_AGE = int(os.environ.get("DB_CONN_MAX_AGE", "60"))
+DB_SSLMODE = os.environ.get("DB_SSLMODE", "prefer")
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": DB_NAME,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASSWORD,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
+        "CONN_MAX_AGE": DB_CONN_MAX_AGE,
+        "OPTIONS": {
+            "sslmode": DB_SSLMODE,
+        },
     }
 }
 

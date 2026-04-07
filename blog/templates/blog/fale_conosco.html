@@ -1,0 +1,176 @@
+{% extends "blog/base.html" %}
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .contact-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        padding: 80px 0 60px;
+        margin-top: var(--navbar-height);
+        color: white;
+    }
+    .contact-card {
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .contact-info-card {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        color: white;
+        padding: 40px 30px;
+        height: 100%;
+    }
+    .contact-form-card {
+        padding: 40px 30px;
+        background: white;
+    }
+    .contact-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .contact-info-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.15);
+    }
+    .btn-send {
+        background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+        border: none;
+        border-radius: 50px;
+        padding: 14px 40px;
+        font-weight: 600;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    .btn-send:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<!-- Hero -->
+<section class="contact-hero text-center">
+    <div class="container">
+        <h1 class="fw-bold mb-3">
+            <i class="fas fa-envelope-open-text me-3"></i>Fale Conosco
+        </h1>
+        <p class="lead opacity-75">Entre em contato com o Conselho Nacional do ECC</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-0 contact-card">
+        <!-- Info -->
+        <div class="col-lg-4">
+            <div class="contact-info-card">
+                <h4 class="fw-bold mb-4">Informações de Contato</h4>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div>
+                        <strong>Endereço</strong>
+                        <p class="mb-0 opacity-75 small">
+                            {% for line in contact_info.address_lines %}
+                                {{ line }}{% if not forloop.last %}<br>{% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                        <strong>Telefone</strong>
+                        <p class="mb-0 opacity-75 small">
+                            <a href="tel:{{ contact_info.phone_link }}" class="text-white text-decoration-none">
+                                {{ contact_info.phone_display }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                        <strong>E-mail</strong>
+                        <p class="mb-0 opacity-75 small">
+                            <a href="mailto:{{ contact_info.email }}" class="text-white">
+                                {{ contact_info.email }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="col-lg-8">
+            <div class="contact-form-card">
+                <h4 class="fw-bold text-dark mb-4">Envie sua mensagem</h4>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.nome.label }} <span class="text-danger">*</span></label>
+                            {{ form.nome }}
+                            {% if form.nome.errors %}
+                                <div class="invalid-feedback d-block">{{ form.nome.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.email.label }} <span class="text-danger">*</span></label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{{ form.assunto.label }}</label>
+                            {{ form.assunto }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{{ form.mensagem.label }} <span class="text-danger">*</span></label>
+                            {{ form.mensagem }}
+                            {% if form.mensagem.errors %}
+                                <div class="invalid-feedback d-block">{{ form.mensagem.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button type="submit" class="btn btn-primary btn-send text-white">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

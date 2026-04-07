@@ -262,8 +262,19 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'blog:noticias_especiais' %}">Conheça o ECC</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Sobre
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'blog:estrutura' %}"><i class="fas fa-sitemap me-2 text-primary"></i>Estrutura de Direção</a></li>
+                            <li><a class="dropdown-item" href="{% url 'blog:secretaria' %}"><i class="fas fa-users me-2 text-primary"></i>Secretaria Nacional</a></li>
+                            <li><a class="dropdown-item" href="{% url 'blog:regionais' %}"><i class="fas fa-map-marked-alt me-2 text-primary"></i>Regionais do ECC</a></li>
+                            <li><a class="dropdown-item" href="{% url 'blog:estatisticas' %}"><i class="fas fa-chart-bar me-2 text-primary"></i>Estatísticas</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contato">Fale Conosco</a>
+                        <a class="nav-link" href="{% url 'blog:fale_conosco' %}">Fale Conosco</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-outline-light ms-2 px-3" href="{% url 'home:home' %}">Sistema de Gestão</a>
@@ -291,27 +302,29 @@
                 <div class="col-lg-2 mb-4">
                     <h6 class="text-white mb-3">Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#sobre" class="text-light text-decoration-none">Sobre</a></li>
-                        <li><a href="#eventos" class="text-light text-decoration-none">Eventos</a></li>
-                        <li><a href="#missao" class="text-light text-decoration-none">Missão</a></li>
+                        <li><a href="{% url 'blog:estrutura' %}" class="text-light text-decoration-none">Estrutura de Direção</a></li>
+                        <li><a href="{% url 'blog:secretaria' %}" class="text-light text-decoration-none">Secretaria Nacional</a></li>
+                        <li><a href="{% url 'blog:regionais' %}" class="text-light text-decoration-none">Regionais do ECC</a></li>
+                        <li><a href="{% url 'blog:estatisticas' %}" class="text-light text-decoration-none">Estatísticas</a></li>
+                        <li><a href="{% url 'blog:fale_conosco' %}" class="text-light text-decoration-none">Fale Conosco</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-3 mb-4">
+                <div class="col-lg-5 mb-4">
                     <h6 class="text-white mb-3">Contato</h6>
                     <p class="text-light mb-1">
-                        <i class="fas fa-envelope me-2"></i>contato@eccnacional.com.br
+                        <i class="fas fa-envelope me-2"></i>
+                        <a href="mailto:{{ contact_info.email }}" class="text-light text-decoration-none">{{ contact_info.email }}</a>
                     </p>
-                    <p class="text-light">
-                        <i class="fas fa-phone me-2"></i>(11) 9999-9999
+                    <p class="text-light mb-1">
+                        <i class="fas fa-phone me-2"></i>
+                        <a href="tel:{{ contact_info.phone_link }}" class="text-light text-decoration-none">{{ contact_info.phone_display }}</a>
                     </p>
-                </div>
-                <div class="col-lg-3 mb-4">
-                    <h6 class="text-white mb-3">Redes Sociais</h6>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-light"><i class="fab fa-facebook-f fa-lg"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-youtube fa-lg"></i></a>
-                    </div>
+                    <p class="text-light mb-0">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        {% for line in contact_info.address_lines %}
+                            {{ line }}{% if not forloop.last %}<br><span class="ms-4"></span>{% endif %}
+                        {% endfor %}
+                    </p>
                 </div>
             </div>
             <hr class="my-4 border-secondary">

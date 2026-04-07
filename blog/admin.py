@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Noticia
+from .models import Noticia, Estatistica, Regional
 
 
 @admin.register(Noticia)
@@ -11,3 +11,16 @@ class NoticiaAdmin(admin.ModelAdmin):
     list_editable = ('especial', 'ativa')
     date_hierarchy = 'data_criacao'
     ordering = ('-data_criacao',)
+
+
+@admin.register(Estatistica)
+class EstatisticaAdmin(admin.ModelAdmin):
+    list_display = ('ano', 'imagem', 'arquivo')
+    ordering = ('-ano',)
+
+
+@admin.register(Regional)
+class RegionalAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'regional_id', 'casal', 'padre')
+    search_fields = ('nome', 'casal', 'padre')
+    ordering = ('nome',)

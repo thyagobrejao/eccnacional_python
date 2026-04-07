@@ -1,0 +1,55 @@
+{% extends "blog/base.html" %}
+{% block title %}
+    {% if object %}Editar{% else %}Nova{% endif %} Regional - ECC Nacional
+{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .admin-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        padding: 60px 0 40px;
+        margin-top: var(--navbar-height);
+        color: white;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="admin-hero text-center">
+    <div class="container">
+        <h1 class="fw-bold">
+            <i class="fas fa-map-pin me-2"></i>
+            {% if object %}Editar Regional{% else %}Nova Regional{% endif %}
+        </h1>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4" style="border-radius:20px;">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="fas fa-save me-2"></i>Salvar
+                        </button>
+                        <a href="{% url 'blog:regionais' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

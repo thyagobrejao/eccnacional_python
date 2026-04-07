@@ -1,0 +1,150 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .page-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        padding: 80px 0 60px;
+        margin-top: var(--navbar-height);
+        color: white;
+    }
+    .stat-card {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        height: 100%;
+    }
+    .stat-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+    }
+    .stat-card-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    .stat-card-img-placeholder {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+    }
+    .stat-card-body {
+        padding: 24px;
+    }
+    .year-badge {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        color: white;
+        border-radius: 50px;
+        padding: 6px 18px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+    .btn-download {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 24px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    .btn-download:hover {
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30,64,175,0.4);
+    }
+    .btn-edit {
+        border-radius: 50px;
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="page-hero text-center">
+    <div class="container">
+        <h1 class="fw-bold mb-2">
+            <i class="fas fa-chart-bar me-3"></i>Estatísticas
+        </h1>
+        <p class="lead opacity-75">Dados estatísticos do ECC Nacional</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    {% if user.is_staff %}
+    <div class="mb-4 text-end">
+        <a href="{% url 'blog:estatistica_create' %}" class="btn btn-primary rounded-pill">
+            <i class="fas fa-plus me-2"></i>Nova Estatística
+        </a>
+    </div>
+    {% endif %}
+
+    {% if estatisticas %}
+    <div class="row g-4">
+        {% for stat in estatisticas %}
+        <div class="col-lg-4 col-md-6">
+            <div class="stat-card">
+                {% if stat.imagem %}
+                    <a href="{{ stat.imagem.url }}" target="_blank">
+                        <img src="{{ stat.imagem.url }}"
+                             alt="Estatísticas {{ stat.ano }}"
+                             class="stat-card-img">
+                    </a>
+                {% else %}
+                    <div class="stat-card-img-placeholder">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                {% endif %}
+                <div class="stat-card-body">
+                    <span class="year-badge">
+                        <i class="fas fa-calendar-alt me-1"></i>{{ stat.ano }}
+                    </span>
+                    <h5 class="fw-bold text-dark mb-3">
+                        Atualização dos Dados Estatísticos
+                    </h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ stat.arquivo.url }}"
+                           class="btn-download"
+                           target="_blank"
+                           rel="noopener">
+                            <i class="fas fa-file-pdf"></i>Baixar PDF
+                        </a>
+                        {% if user.is_staff %}
+                        <a href="{% url 'blog:estatistica_update' stat.pk %}"
+                           class="btn btn-outline-secondary btn-edit">
+                            <i class="fas fa-edit me-1"></i>Editar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-chart-bar fa-4x text-secondary mb-4 d-block"></i>
+        <h4 class="fw-bold text-dark">Nenhuma estatística disponível</h4>
+        <p class="text-muted">Os dados estatísticos serão publicados em breve.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

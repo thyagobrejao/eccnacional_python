@@ -1,0 +1,320 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .page-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        padding: 80px 0 60px;
+        margin-top: var(--navbar-height);
+        color: white;
+    }
+    .map-wrapper {
+        position: relative;
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+    }
+    .map-wrapper embed {
+        width: 100%;
+        height: 500px;
+        border: none;
+        border-radius: 12px;
+    }
+    .map-tooltip {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        display: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        min-width: 180px;
+    }
+    .tooltip-state {
+        background: var(--primary-color);
+        color: white;
+        padding: 8px 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .tooltip-capital {
+        background: #1d4ed8;
+        color: white;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+    }
+    .tooltip-regional {
+        background: #ea580c;
+        color: white;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+    .regional-info-panel {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+    .panel-placeholder {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+        color: var(--text-light);
+    }
+    .panel-placeholder .icon-map {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 16px;
+    }
+    .loading-spinner {
+        display: none;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+    #regional-content {
+        display: none;
+        flex: 1;
+    }
+    .regional-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+        color: white;
+        padding: 24px;
+    }
+    .regional-body {
+        padding: 24px;
+    }
+    .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #eff6ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        flex-shrink: 0;
+    }
+    .map-hint {
+        font-size: 0.82rem;
+        color: var(--text-light);
+        text-align: center;
+        margin-top: 10px;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<section class="page-hero text-center">
+    <div class="container">
+        <h1 class="fw-bold mb-2">
+            <i class="fas fa-map-marked-alt me-3"></i>Regionais do ECC
+        </h1>
+        <p class="lead opacity-75">Clique em um estado para ver os dados da regional</p>
+    </div>
+</section>
+
+<div class="container py-5">
+
+    {% if user.is_staff %}
+    <div class="mb-4 text-end">
+        <a href="{% url 'blog:regional_create' %}" class="btn btn-primary rounded-pill">
+            <i class="fas fa-plus me-2"></i>Nova Regional
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="row g-4 align-items-start">
+        <!-- Mapa -->
+        <div class="col-lg-7">
+            <div class="map-wrapper">
+                <embed id="mapa-svg" src="{% static 'assets/mapa.svg' %}" type="image/svg+xml"></embed>
+                <p class="map-hint"><i class="fas fa-hand-pointer me-1"></i>Passe o mouse ou clique em um estado</p>
+            </div>
+        </div>
+
+        <!-- Painel de informações -->
+        <div class="col-lg-5">
+            <div class="regional-info-panel">
+                <!-- Placeholder -->
+                <div class="panel-placeholder" id="panel-placeholder">
+                    <div class="icon-map"><i class="fas fa-map-marked-alt"></i></div>
+                    <h5 class="fw-semibold text-dark">Selecione um estado</h5>
+                    <p class="mb-0 small">Clique em qualquer estado no mapa para visualizar as informações da regional correspondente.</p>
+                </div>
+                <!-- Loading -->
+                <div class="loading-spinner" id="loading-spinner">
+                    <div class="text-center text-primary">
+                        <div class="spinner-border mb-3" role="status"></div>
+                        <p class="fw-semibold">Carregando regional...</p>
+                    </div>
+                </div>
+                <!-- Content -->
+                <div id="regional-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip flutuante -->
+<div id="map-tooltip" class="map-tooltip">
+    <div class="tooltip-state" id="tt-state">
+        <img id="tt-flag" src="" alt="" width="22" height="16" style="border-radius:2px;">
+        <span id="tt-state-name"></span>
+    </div>
+    <div class="tooltip-capital" id="tt-capital"></div>
+    <div class="tooltip-regional" id="tt-regional"></div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+const ESTADOS = {
+    "ac": { nome: "Acre", capital: "Rio Branco", regiao: "Noroeste", regional: "noroeste" },
+    "al": { nome: "Alagoas", capital: "Maceió", regiao: "Nordeste 2", regional: "nordeste2" },
+    "ap": { nome: "Amapá", capital: "Macapá", regiao: "Norte 2", regional: "norte2" },
+    "am": { nome: "Amazonas", capital: "Manaus", regiao: "Norte 1", regional: "norte1" },
+    "ba": { nome: "Bahia", capital: "Salvador", regiao: "Nordeste 3", regional: "nordeste3" },
+    "ce": { nome: "Ceará", capital: "Fortaleza", regiao: "Nordeste 1", regional: "nordeste1" },
+    "df": { nome: "Distrito Federal", capital: "Brasília", regiao: "Centro-Oeste", regional: "centroOeste" },
+    "es": { nome: "Espírito Santo", capital: "Vitória", regiao: "Leste 3", regional: "leste3" },
+    "go": { nome: "Goiás", capital: "Goiânia", regiao: "Centro-Oeste", regional: "centroOeste" },
+    "ma": { nome: "Maranhão", capital: "São Luís", regiao: "Nordeste 5", regional: "nordeste5" },
+    "mt": { nome: "Mato Grosso", capital: "Cuiabá", regiao: "Oeste 2", regional: "oeste2" },
+    "ms": { nome: "Mato Grosso do Sul", capital: "Campo Grande", regiao: "Oeste 1", regional: "oeste1" },
+    "mg": { nome: "Minas Gerais", capital: "Belo Horizonte", regiao: "Leste 2", regional: "leste2" },
+    "pr": { nome: "Paraná", capital: "Curitiba", regiao: "Sul 2", regional: "sul2" },
+    "pb": { nome: "Paraíba", capital: "João Pessoa", regiao: "Nordeste 2", regional: "nordeste2" },
+    "pa": { nome: "Pará", capital: "Belém", regiao: "Norte 2", regional: "norte2" },
+    "pe": { nome: "Pernambuco", capital: "Recife", regiao: "Nordeste 2", regional: "nordeste2" },
+    "pi": { nome: "Piauí", capital: "Teresina", regiao: "Nordeste 4", regional: "nordeste4" },
+    "rj": { nome: "Rio de Janeiro", capital: "Rio de Janeiro", regiao: "Leste 1", regional: "leste1" },
+    "rn": { nome: "Rio Grande do Norte", capital: "Natal", regiao: "Nordeste 2", regional: "nordeste2" },
+    "rs": { nome: "Rio Grande do Sul", capital: "Porto Alegre", regiao: "Sul 3", regional: "sul3" },
+    "ro": { nome: "Rondônia", capital: "Porto Velho", regiao: "Noroeste", regional: "noroeste" },
+    "rr": { nome: "Roraima", capital: "Boa Vista", regiao: "Norte 1", regional: "norte1" },
+    "sc": { nome: "Santa Catarina", capital: "Florianópolis", regiao: "Sul 4", regional: "sul4" },
+    "se": { nome: "Sergipe", capital: "Aracaju", regiao: "Nordeste 3", regional: "nordeste3" },
+    "sp": { nome: "São Paulo", capital: "São Paulo", regiao: "Sul 1", regional: "sul1" },
+    "to": { nome: "Tocantins", capital: "Palmas", regiao: "Norte 3", regional: "norte3" }
+};
+
+const REGIONAL_URL = "{% url 'blog:regional_ajax' 'PLACEHOLDER' %}";
+
+let currentRegional = null;
+const tooltip = document.getElementById('map-tooltip');
+const placeholder = document.getElementById('panel-placeholder');
+const spinner = document.getElementById('loading-spinner');
+const content = document.getElementById('regional-content');
+
+function showTooltip(x, y, sigla) {
+    const data = ESTADOS[sigla];
+    if (!data) return;
+    document.getElementById('tt-state-name').textContent = data.nome;
+    document.getElementById('tt-capital').textContent = 'Capital: ' + data.capital;
+    document.getElementById('tt-regional').textContent = 'Regional: ' + data.regiao;
+    const flag = document.getElementById('tt-flag');
+    flag.src = `/static/assets/bandeiras/${sigla}.png`;
+    flag.onerror = () => { flag.style.display = 'none'; };
+    tooltip.style.display = 'block';
+    tooltip.style.left = (x + 15) + 'px';
+    tooltip.style.top = (y + 10) + 'px';
+}
+
+function hideTooltip() {
+    tooltip.style.display = 'none';
+}
+
+function loadRegional(regionalId) {
+    if (currentRegional === regionalId) return;
+    currentRegional = regionalId;
+
+    placeholder.style.display = 'none';
+    spinner.style.display = 'flex';
+    content.style.display = 'none';
+
+    const url = REGIONAL_URL.replace('PLACEHOLDER', regionalId);
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.ok ? r.text() : Promise.reject(r.status))
+        .then(html => {
+            content.innerHTML = html;
+            content.style.display = 'flex';
+            content.style.flexDirection = 'column';
+        })
+        .catch(() => {
+            content.innerHTML = `
+                <div class="p-4 text-center">
+                    <i class="fas fa-info-circle fa-2x text-warning mb-3 d-block"></i>
+                    <p class="text-muted">Informações desta regional ainda não cadastradas.</p>
+                </div>`;
+            content.style.display = 'flex';
+        })
+        .finally(() => { spinner.style.display = 'none'; });
+}
+
+window.addEventListener('load', function () {
+    const embed = document.getElementById('mapa-svg');
+
+    function initSVG() {
+        try {
+            const svgDoc = embed.getSVGDocument();
+            if (!svgDoc) return;
+            const paths = svgDoc.documentElement.getElementsByTagName('path');
+            Array.from(paths).forEach(path => {
+                const originalFill = path.getAttribute('fill');
+                const sigla = path.parentNode?.id?.toLowerCase();
+
+                path.style.cursor = 'pointer';
+                path.style.transition = 'fill 0.2s ease';
+
+                path.addEventListener('mouseover', function (e) {
+                    this.style.fill = '#f0abfc';
+                    showTooltip(e.clientX, e.clientY, sigla);
+                });
+                path.addEventListener('mousemove', function (e) {
+                    tooltip.style.left = (e.clientX + 15) + 'px';
+                    tooltip.style.top = (e.clientY + 10) + 'px';
+                });
+                path.addEventListener('mouseout', function () {
+                    this.style.fill = originalFill;
+                    hideTooltip();
+                });
+                path.addEventListener('click', function () {
+                    const data = ESTADOS[sigla];
+                    if (data) loadRegional(data.regional);
+                });
+            });
+        } catch (e) {
+            console.warn('SVG not ready yet', e);
+        }
+    }
+
+    embed.addEventListener('load', initSVG);
+    // Fallback: some browsers fire load before the event listener is attached
+    if (embed.getSVGDocument && embed.getSVGDocument()) initSVG();
+});
+</script>
+{% endblock extra_js %}

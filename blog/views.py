@@ -9,12 +9,13 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
+from django.core.mail import send_mail
 from django.conf import settings
 import uuid
 import os
 import re
-from .models import Noticia
-from .forms import NoticiaForm
+from .models import Noticia, Estatistica, Regional
+from .forms import NoticiaForm, ContatoForm, EstatisticaForm, RegionalForm
 
 
 class BlogHomeView(TemplateView):
@@ -319,3 +320,140 @@ def tinymce_file_browser(request):
         return JsonResponse({
             'error': str(e)
         }, status=500)
+
+
+# ─── Páginas do Conselho Nacional ───────────────────────────────────────────
+
+class FaleConoscoView(TemplateView):
+    template_name = 'blog/fale_conosco.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ContatoForm()
+        context['page_title'] = 'Fale Conosco'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = ContatoForm(request.POST)
+        if form.is_valid():
+            nome = form.cleaned_data['nome']
+            email = form.cleaned_data['email']
+            assunto = form.cleaned_data.get('assunto') or 'Contato via site'
+            mensagem = form.cleaned_data['mensagem']
+            corpo = f"Nome: {nome}\nE-mail: {email}\n\n{mensagem}"
+            try:
+                send_mail(
+                    subject=f"[ECC Nacional] {assunto}",
+                    message=corpo,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[settings.CONTACT_INFO['email']],
+                    reply_to=[email],
+                    fail_silently=False,
+                )
+                messages.success(request, 'Mensagem enviada com sucesso! Entraremos em contato em breve.')
+            except Exception:
+                messages.error(request, 'Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.')
+            return redirect('blog:fale_conosco')
+        return render(request, self.template_name, {'form': form, 'page_title': 'Fale Conosco'})
+
+
+class EstruturaDirecaoView(TemplateView):
+    template_name = 'blog/estrutura.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Estrutura de Direção'
+        return context
+
+
+class SecretariaNacionalView(TemplateView):
+    template_name = 'blog/secretaria.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Secretaria Nacional'
+        return context
+
+
+class RegionaisView(TemplateView):
+    template_name = 'blog/regionais.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Regionais do ECC'
+        return context
+
+
+def regional_ajax(request, regional_id):
+    """Retorna os dados de uma regional via AJAX para o mapa interativo."""
+    regional = get_object_or_404(Regional, regional_id=regional_id)
+    html = render(request, 'blog/partials/regional_card.html', {'regional': regional})
+    return html
+
+
+class EstatisticasView(ListView):
+    model = Estatistica
+    template_name = 'blog/estatisticas.html'
+    context_object_name = 'estatisticas'
+    ordering = ['-ano']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Estatísticas'
+        return context
+
+
+# ─── Admin CRUD para Estatísticas e Regionais ────────────────────────────────
+
+class EstatisticaCreateView(AdminRequiredMixin, CreateView):
+    model = Estatistica
+    form_class = EstatisticaForm
+    template_name = 'blog/admin/estatistica_form.html'
+    success_url = reverse_lazy('blog:estatisticas')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Estatística criada com sucesso!')
+        return super().form_valid(form)
+
+
+class EstatisticaUpdateView(AdminRequiredMixin, UpdateView):
+    model = Estatistica
+    form_class = EstatisticaForm
+    template_name = 'blog/admin/estatistica_form.html'
+    success_url = reverse_lazy('blog:estatisticas')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Estatística atualizada com sucesso!')
+        return super().form_valid(form)
+
+
+class EstatisticaDeleteView(AdminRequiredMixin, DeleteView):
+    model = Estatistica
+    template_name = 'blog/admin/estatistica_confirm_delete.html'
+    success_url = reverse_lazy('blog:estatisticas')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, 'Estatística excluída com sucesso!')
+        return super().delete(request, *args, **kwargs)
+
+
+class RegionalCreateView(AdminRequiredMixin, CreateView):
+    model = Regional
+    form_class = RegionalForm
+    template_name = 'blog/admin/regional_form.html'
+    success_url = reverse_lazy('blog:regionais')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Regional criada com sucesso!')
+        return super().form_valid(form)
+
+
+class RegionalUpdateView(AdminRequiredMixin, UpdateView):
+    model = Regional
+    form_class = RegionalForm
+    template_name = 'blog/admin/regional_form.html'
+    success_url = reverse_lazy('blog:regionais')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Regional atualizada com sucesso!')
+        return super().form_valid(form)

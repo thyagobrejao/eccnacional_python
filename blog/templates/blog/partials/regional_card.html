@@ -1,0 +1,65 @@
+{% load static %}
+<div class="regional-header">
+    <h5 class="fw-bold mb-1">
+        <i class="fas fa-map-pin me-2"></i>{{ regional.nome }}
+    </h5>
+    <span class="badge bg-white text-primary fw-semibold">
+        {{ regional.get_regional_id_display }}
+    </span>
+</div>
+
+<div class="regional-body flex-fill">
+    {% if regional.imagem %}
+    <div class="mb-4 text-center">
+        <img src="{{ regional.imagem.url }}"
+             alt="{{ regional.nome }}"
+             class="img-fluid rounded-3 shadow-sm"
+             style="max-height:180px; object-fit:cover; width:100%;">
+    </div>
+    {% endif %}
+
+    {% if regional.casal %}
+    <div class="info-row">
+        <div class="info-icon"><i class="fas fa-heart"></i></div>
+        <div>
+            <div class="text-muted small fw-semibold" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Casal Responsável</div>
+            <div class="fw-semibold text-dark">{{ regional.casal }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if regional.padre %}
+    <div class="info-row">
+        <div class="info-icon"><i class="fas fa-cross"></i></div>
+        <div>
+            <div class="text-muted small fw-semibold" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Assistente Eclesiástico</div>
+            <div class="fw-semibold text-dark">{{ regional.padre }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if regional.descricao %}
+    <div class="info-row">
+        <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+        <div>
+            <div class="text-muted small fw-semibold" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Descrição</div>
+            <div class="text-dark small">{{ regional.descricao }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not regional.casal and not regional.padre and not regional.descricao %}
+    <div class="text-center py-4 text-muted">
+        <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+        Informações ainda não cadastradas para esta regional.
+    </div>
+    {% endif %}
+
+    {% if request.user.is_staff %}
+    <div class="mt-3 text-end">
+        <a href="{% url 'blog:regional_update' regional.pk %}" class="btn btn-sm btn-outline-primary rounded-pill">
+            <i class="fas fa-edit me-1"></i>Editar
+        </a>
+    </div>
+    {% endif %}
+</div>
