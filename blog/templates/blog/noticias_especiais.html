@@ -38,7 +38,8 @@
                                                  class="img-fluid"
                                                  alt="{{ noticia.titulo }}"
                                                  width="100%"
-                                                 height="auto">
+                                                 height="auto"
+                                                 onerror="this.onerror=null; this.src='{% static 'assets/img/brasao_ecc.png' %}';">
                                         {% else %}
                                             <div class="card-img-top bg-light d-flex align-items-center justify-content-center noticia-placeholder">
                                                 <i class="fas fa-newspaper text-muted fa-3x"></i>

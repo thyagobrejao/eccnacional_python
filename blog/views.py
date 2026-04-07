@@ -1,16 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView, ListView, DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.core.mail import send_mail
 from django.conf import settings
+from django.views.decorators.http import require_POST
 import uuid
 import os
 import re
@@ -189,43 +189,42 @@ class NoticiaDeleteView(AdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-@csrf_exempt
+ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'}
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
+@login_required
+@require_POST
 def tinymce_upload(request):
     """View para upload de imagens do TinyMCE para S3"""
-    if request.method == 'POST' and request.FILES.get('file'):
-        try:
-            from datetime import datetime
-            
-            uploaded_file = request.FILES['file']
-            
-            # Obter o ambiente do sistema (development, production, etc.)
-            environment = getattr(settings, 'ENVIRONMENT', 'development')
-            
-            # Obter data atual para criar estrutura de pastas ANO/MES/DIA
-            now = datetime.now()
-            year = now.strftime('%Y')
-            month = now.strftime('%m')
-            day = now.strftime('%d')
-            
-            # Gerar nome único para o arquivo
-            file_extension = os.path.splitext(uploaded_file.name)[1]
-            unique_filename = f"{environment}/tinymce/{year}/{month}/{day}/{uuid.uuid4()}{file_extension}"
-            
-            # Salvar no S3 usando o storage padrão
-            file_path = default_storage.save(unique_filename, uploaded_file)
-            file_url = default_storage.url(file_path)
-            
-            return JsonResponse({
-                'location': file_url
-            })
-        except Exception as e:
-            return JsonResponse({
-                'error': str(e)
-            }, status=500)
-    
-    return JsonResponse({
-        'error': 'Método não permitido ou arquivo não encontrado'
-    }, status=400)
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Acesso negado'}, status=403)
+
+    uploaded_file = request.FILES.get('file')
+    if not uploaded_file:
+        return JsonResponse({'error': 'Nenhum arquivo enviado'}, status=400)
+
+    if uploaded_file.content_type not in ALLOWED_IMAGE_TYPES:
+        return JsonResponse({'error': 'Tipo de arquivo não permitido. Envie apenas imagens.'}, status=400)
+
+    if uploaded_file.size > MAX_UPLOAD_SIZE:
+        return JsonResponse({'error': 'Arquivo muito grande. Máximo: 10 MB'}, status=400)
+
+    try:
+        from datetime import datetime
+
+        environment = getattr(settings, 'ENVIRONMENT', 'development')
+        now = datetime.now()
+
+        file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+        unique_filename = f"{environment}/tinymce/{now:%Y}/{now:%m}/{now:%d}/{uuid.uuid4()}{file_extension}"
+
+        file_path = default_storage.save(unique_filename, uploaded_file)
+        file_url = default_storage.url(file_path)
+
+        return JsonResponse({'location': file_url})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def tinymce_file_browser_view(request):
@@ -233,7 +232,7 @@ def tinymce_file_browser_view(request):
     return render(request, 'blog/admin/tinymce_file_browser.html')
 
 
-@csrf_exempt
+@login_required
 def tinymce_file_browser(request):
     """View para navegação de arquivos já enviados no S3"""
     try:

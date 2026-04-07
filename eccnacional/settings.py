@@ -265,11 +265,63 @@ TINYMCE_DEFAULT_CONFIG = {
         "//www.tiny.cloud/css/codepen.min.css",
     ],
     "content_style": "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-    "images_upload_url": "/blog/tinymce/upload/",
     "automatic_uploads": True,
     "file_picker_types": "image",
     "paste_data_images": True,
-    "file_picker_callback": "function(callback, value, meta) { if (meta.filetype === 'image') { var browserWindow = window.open('/blog/tinymce/browser/', 'tinymce_file_browser', 'width=800,height=600,scrollbars=yes,resizable=yes'); window.tinymceFileCallback = function(url, meta) { callback(url, meta); browserWindow.close(); }; } }",
+    "images_reuse_filename": True,
+    "images_upload_handler": (
+        "function(blobInfo) {"
+        " return new Promise(function(resolve, reject) {"
+        "  var fd = new FormData();"
+        "  fd.append('file', blobInfo.blob(), blobInfo.filename());"
+        "  var csrfToken = '';"
+        "  var csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');"
+        "  if (csrfInput) { csrfToken = csrfInput.value; }"
+        "  else { var m = document.cookie.match(/csrftoken=([^;]+)/); if (m) csrfToken = m[1]; }"
+        "  fetch('/blog/tinymce/upload/', {"
+        "   method: 'POST',"
+        "   headers: {'X-CSRFToken': csrfToken},"
+        "   body: fd,"
+        "   credentials: 'same-origin'"
+        "  })"
+        "  .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })"
+        "  .then(function(data) {"
+        "   if (data.location) { resolve(data.location); }"
+        "   else { reject('Upload falhou: ' + (data.error || 'Erro desconhecido')); }"
+        "  })"
+        "  .catch(function(e) { reject('Upload falhou: ' + e); });"
+        " });"
+        "}"
+    ),
+    "file_picker_callback": (
+        "function(callback, value, meta) {"
+        " if (meta.filetype === 'image') {"
+        "  var input = document.createElement('input');"
+        "  input.setAttribute('type', 'file');"
+        "  input.setAttribute('accept', 'image/*');"
+        "  input.onchange = function() {"
+        "   var file = this.files[0];"
+        "   var fd = new FormData();"
+        "   fd.append('file', file);"
+        "   var csrfToken = '';"
+        "   var csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');"
+        "   if (csrfInput) { csrfToken = csrfInput.value; }"
+        "   else { var m = document.cookie.match(/csrftoken=([^;]+)/); if (m) csrfToken = m[1]; }"
+        "   fetch('/blog/tinymce/upload/', {"
+        "    method: 'POST',"
+        "    headers: {'X-CSRFToken': csrfToken},"
+        "    body: fd,"
+        "    credentials: 'same-origin'"
+        "   })"
+        "   .then(function(r) { return r.json(); })"
+        "   .then(function(data) {"
+        "    if (data.location) { callback(data.location, {title: file.name}); }"
+        "   });"
+        "  };"
+        "  input.click();"
+        " }"
+        "}"
+    ),
 }
 
 TINYMCE_SPELLCHECKER = False

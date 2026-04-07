@@ -29,7 +29,7 @@
                         <tr>
                             <td>
                                 {% if noticia.imagem_principal %}
-                                     <img src="{{ noticia.imagem_principal.url }}" alt="{{ noticia.titulo }}" class="img-thumbnail table-image" width="60" height="45">
+                                     <img src="{{ noticia.imagem_principal.url }}" alt="{{ noticia.titulo }}" class="img-thumbnail table-image" width="60" height="45" onerror="this.outerHTML='<div class=\'bg-light d-flex align-items-center justify-content-center table-image-placeholder\'><i class=\'fas fa-image text-danger\' title=\'Imagem não encontrada\'></i></div>'">
                                  {% else %}
                                      <div class="bg-light d-flex align-items-center justify-content-center table-image-placeholder">
                                          <i class="fas fa-image text-muted"></i>
