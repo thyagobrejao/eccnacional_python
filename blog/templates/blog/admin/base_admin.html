@@ -8,8 +8,10 @@
     <title>{% block title %}Administração de Notícias - ECC Nacional{% endblock title %}</title>
 
     {% load django_vite %}
-    {% vite_hmr_client %}
-    {% vite_asset 'js/main.js' %}
+    {% if USE_VITE %}
+        {% vite_hmr_client %}
+        {% vite_asset 'js/main.js' %}
+    {% endif %}
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
