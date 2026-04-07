@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.conf import settings
 from django.views.decorators.http import require_POST
 import uuid
@@ -341,14 +341,13 @@ class FaleConoscoView(TemplateView):
             mensagem = form.cleaned_data['mensagem']
             corpo = f"Nome: {nome}\nE-mail: {email}\n\n{mensagem}"
             try:
-                send_mail(
+                EmailMessage(
                     subject=f"[ECC Nacional] {assunto}",
-                    message=corpo,
+                    body=corpo,
                     from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[settings.CONTACT_INFO['email']],
+                    to=[settings.CONTACT_FORM_RECIPIENT_EMAIL],
                     reply_to=[email],
-                    fail_silently=False,
-                )
+                ).send(fail_silently=False)
                 messages.success(request, 'Mensagem enviada com sucesso! Entraremos em contato em breve.')
             except Exception:
                 messages.error(request, 'Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.')
