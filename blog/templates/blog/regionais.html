@@ -161,7 +161,7 @@
 
     <div class="row g-4 align-items-start">
         <!-- Mapa -->
-        <div class="col-lg-7">
+        <div class="col-lg-6">
             <div class="map-wrapper">
                 <div id="mapa-svg" class="map-svg-container" data-src="{% static 'assets/mapa.svg' %}">
                     <div class="text-center text-muted">
@@ -174,7 +174,7 @@
         </div>
 
         <!-- Painel de informações -->
-        <div class="col-lg-5">
+        <div class="col-lg-3">
             <div class="regional-info-panel">
                 <!-- Placeholder -->
                 <div class="panel-placeholder" id="panel-placeholder">
@@ -191,6 +191,46 @@
                 </div>
                 <!-- Content -->
                 <div id="regional-content"></div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="sidebar-sticky-inner">
+                <div class="sidebar-card card mb-3">
+                    <div class="sidebar-header">
+                        <i class="fas fa-bars me-2"></i>Navegação
+                    </div>
+                    {% with current=request.resolver_match.url_name %}
+                    <a href="{% url 'blog:estrutura' %}" class="sidebar-nav-link{% if current == 'estrutura' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-sitemap"></i></span>
+                        Estrutura de Direção
+                    </a>
+                    <a href="{% url 'blog:secretaria' %}" class="sidebar-nav-link{% if current == 'secretaria' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-users"></i></span>
+                        Secretaria Nacional
+                    </a>
+                    <a href="{% url 'blog:regionais' %}" class="sidebar-nav-link{% if current == 'regionais' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-map-marked-alt"></i></span>
+                        Regionais do ECC
+                    </a>
+                    <a href="{% url 'blog:estatisticas' %}" class="sidebar-nav-link{% if current == 'estatisticas' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>
+                        Estatísticas
+                    </a>
+                    <a href="{% url 'blog:fale_conosco' %}" class="sidebar-nav-link{% if current == 'fale_conosco' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-envelope"></i></span>
+                        Fale Conosco
+                    </a>
+                    {% endwith %}
+                </div>
+                <a href="https://gestao.conselhonacional.com.br"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn-gestao">
+                    <i class="fas fa-book-open fa-lg"></i>
+                    Pedido de Material
+                </a>
             </div>
         </div>
     </div>

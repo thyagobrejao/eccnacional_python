@@ -148,72 +148,6 @@
         margin: 0 auto 20px;
     }
 
-    /* ── Sidebar ─────────────────────────────────────────── */
-    .sidebar-card {
-        border-radius: 16px;
-        overflow: hidden;
-        border: none;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-    .sidebar-card .sidebar-header {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
-        color: white;
-        font-weight: 700;
-        font-size: 0.82rem;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        padding: 10px 16px;
-    }
-    .sidebar-nav-link {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 11px 16px;
-        color: var(--text-dark);
-        text-decoration: none;
-        font-size: 0.9rem;
-        border-bottom: 1px solid #f1f5f9;
-        transition: background 0.18s, padding-left 0.18s;
-    }
-    .sidebar-nav-link:last-child { border-bottom: none; }
-    .sidebar-nav-link:hover {
-        background: #f0f4ff;
-        padding-left: 20px;
-        color: var(--primary-color);
-    }
-    .sidebar-nav-link .sidebar-icon {
-        width: 28px;
-        height: 28px;
-        background: rgba(30,64,175,0.1);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        color: var(--primary-color);
-        flex-shrink: 0;
-        transition: background 0.18s;
-    }
-    .sidebar-nav-link:hover .sidebar-icon {
-        background: rgba(30,64,175,0.2);
-    }
-    .btn-gestao {
-        background: linear-gradient(135deg, #16a34a, #22c55e);
-        border: none;
-        border-radius: 12px;
-        color: white;
-        font-weight: 600;
-        font-size: 0.9rem;
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        justify-content: center;
-        text-decoration: none;
-        transition: opacity 0.2s, transform 0.2s;
-    }
-    .btn-gestao:hover { opacity: 0.9; transform: translateY(-2px); color: white; }
-
     /* ── Paginação ───────────────────────────────────────── */
     .pagination .page-link {
         border-radius: 8px !important;
@@ -250,10 +184,6 @@
         color: var(--primary-color);
     }
 
-    /* ── Sticky sidebar no desktop ───────────────────────── */
-    @media (min-width: 992px) {
-        .sidebar-sticky-inner { position: sticky; top: calc(var(--navbar-height) + 16px); }
-    }
 </style>
 {% endblock extra_css %}
 

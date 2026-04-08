@@ -73,102 +73,145 @@
 </section>
 
 <div class="container py-5">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
-                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-9">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-    <div class="row g-0 contact-card">
-        <!-- Info -->
-        <div class="col-lg-4">
-            <div class="contact-info-card">
-                <h4 class="fw-bold mb-4">Informações de Contato</h4>
-                <div class="contact-info-item">
-                    <div class="contact-info-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div>
-                        <strong>Endereço</strong>
-                        <p class="mb-0 opacity-75 small">
-                            {% for line in contact_info.address_lines %}
-                                {{ line }}{% if not forloop.last %}<br>{% endif %}
-                            {% endfor %}
-                        </p>
+            <div class="row g-0 contact-card">
+                <!-- Info -->
+                <div class="col-lg-4">
+                    <div class="contact-info-card">
+                        <h4 class="fw-bold mb-4">Informações de Contato</h4>
+                        <div class="contact-info-item">
+                            <div class="contact-info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <strong>Endereço</strong>
+                                <p class="mb-0 opacity-75 small">
+                                    {% for line in contact_info.address_lines %}
+                                        {{ line }}{% if not forloop.last %}<br>{% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="contact-info-item">
+                            <div class="contact-info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <strong>Telefone</strong>
+                                <p class="mb-0 opacity-75 small">
+                                    <a href="tel:{{ contact_info.phone_link }}" class="text-white text-decoration-none">
+                                        {{ contact_info.phone_display }}
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="contact-info-item">
+                            <div class="contact-info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <strong>E-mail</strong>
+                                <p class="mb-0 opacity-75 small">
+                                    <a href="mailto:{{ contact_info.email }}" class="text-white">
+                                        {{ contact_info.email }}
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="contact-info-item">
-                    <div class="contact-info-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <div>
-                        <strong>Telefone</strong>
-                        <p class="mb-0 opacity-75 small">
-                            <a href="tel:{{ contact_info.phone_link }}" class="text-white text-decoration-none">
-                                {{ contact_info.phone_display }}
-                            </a>
-                        </p>
-                    </div>
-                </div>
-                <div class="contact-info-item">
-                    <div class="contact-info-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div>
-                        <strong>E-mail</strong>
-                        <p class="mb-0 opacity-75 small">
-                            <a href="mailto:{{ contact_info.email }}" class="text-white">
-                                {{ contact_info.email }}
-                            </a>
-                        </p>
+
+                <!-- Form -->
+                <div class="col-lg-8">
+                    <div class="contact-form-card">
+                        <h4 class="fw-bold text-dark mb-4">Envie sua mensagem</h4>
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">{{ form.nome.label }} <span class="text-danger">*</span></label>
+                                    {{ form.nome }}
+                                    {% if form.nome.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.nome.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">{{ form.email.label }} <span class="text-danger">*</span></label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">{{ form.assunto.label }}</label>
+                                    {{ form.assunto }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">{{ form.mensagem.label }} <span class="text-danger">*</span></label>
+                                    {{ form.mensagem }}
+                                    {% if form.mensagem.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.mensagem.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <button type="submit" class="btn btn-primary btn-send text-white">
+                                        <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Form -->
-        <div class="col-lg-8">
-            <div class="contact-form-card">
-                <h4 class="fw-bold text-dark mb-4">Envie sua mensagem</h4>
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">{{ form.nome.label }} <span class="text-danger">*</span></label>
-                            {{ form.nome }}
-                            {% if form.nome.errors %}
-                                <div class="invalid-feedback d-block">{{ form.nome.errors|join:", " }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">{{ form.email.label }} <span class="text-danger">*</span></label>
-                            {{ form.email }}
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">{{ form.assunto.label }}</label>
-                            {{ form.assunto }}
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">{{ form.mensagem.label }} <span class="text-danger">*</span></label>
-                            {{ form.mensagem }}
-                            {% if form.mensagem.errors %}
-                                <div class="invalid-feedback d-block">{{ form.mensagem.errors|join:", " }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-12 mt-2">
-                            <button type="submit" class="btn btn-primary btn-send text-white">
-                                <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem
-                            </button>
-                        </div>
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="sidebar-sticky-inner">
+                <div class="sidebar-card card mb-3">
+                    <div class="sidebar-header">
+                        <i class="fas fa-bars me-2"></i>Navegação
                     </div>
-                </form>
+                    {% with current=request.resolver_match.url_name %}
+                    <a href="{% url 'blog:estrutura' %}" class="sidebar-nav-link{% if current == 'estrutura' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-sitemap"></i></span>
+                        Estrutura de Direção
+                    </a>
+                    <a href="{% url 'blog:secretaria' %}" class="sidebar-nav-link{% if current == 'secretaria' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-users"></i></span>
+                        Secretaria Nacional
+                    </a>
+                    <a href="{% url 'blog:regionais' %}" class="sidebar-nav-link{% if current == 'regionais' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-map-marked-alt"></i></span>
+                        Regionais do ECC
+                    </a>
+                    <a href="{% url 'blog:estatisticas' %}" class="sidebar-nav-link{% if current == 'estatisticas' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>
+                        Estatísticas
+                    </a>
+                    <a href="{% url 'blog:fale_conosco' %}" class="sidebar-nav-link{% if current == 'fale_conosco' %} active{% endif %}">
+                        <span class="sidebar-icon"><i class="fas fa-envelope"></i></span>
+                        Fale Conosco
+                    </a>
+                    {% endwith %}
+                </div>
+                <a href="https://gestao.conselhonacional.com.br"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn-gestao">
+                    <i class="fas fa-book-open fa-lg"></i>
+                    Pedido de Material
+                </a>
             </div>
         </div>
     </div>
