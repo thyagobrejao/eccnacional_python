@@ -17,13 +17,13 @@ urlpatterns = [
     path('estatisticas/', views.EstatisticasView.as_view(), name='estatisticas'),
 
     # Admin CRUD – Estatísticas
-    path('admin/estatisticas/nova/', views.EstatisticaCreateView.as_view(), name='estatistica_create'),
-    path('admin/estatisticas/<int:pk>/editar/', views.EstatisticaUpdateView.as_view(), name='estatistica_update'),
-    path('admin/estatisticas/<int:pk>/excluir/', views.EstatisticaDeleteView.as_view(), name='estatistica_delete'),
+    path('gestao-blog/estatisticas/nova/', views.EstatisticaCreateView.as_view(), name='estatistica_create'),
+    path('gestao-blog/estatisticas/<int:pk>/editar/', views.EstatisticaUpdateView.as_view(), name='estatistica_update'),
+    path('gestao-blog/estatisticas/<int:pk>/excluir/', views.EstatisticaDeleteView.as_view(), name='estatistica_delete'),
 
     # Admin CRUD – Regionais
-    path('admin/regionais/nova/', views.RegionalCreateView.as_view(), name='regional_create'),
-    path('admin/regionais/<int:pk>/editar/', views.RegionalUpdateView.as_view(), name='regional_update'),
+    path('gestao-blog/regionais/nova/', views.RegionalCreateView.as_view(), name='regional_create'),
+    path('gestao-blog/regionais/<int:pk>/editar/', views.RegionalUpdateView.as_view(), name='regional_update'),
 
     # URLs de administração de notícias
     path('blog/admin/noticias/', views.NoticiaListView.as_view(), name='admin_noticia_list'),
