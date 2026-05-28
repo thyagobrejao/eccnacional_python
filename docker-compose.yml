@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  eccnacional-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eccnacional-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    networks:
+      - infra-network
+
+networks:
+  infra-network:
+    external: true

@@ -129,21 +129,27 @@
         <h5 class="card-title mb-0">Ações</h5>
       </div>
       <div class="card-body">
-        <form method="post" action="{% url 'pedidos:update_status' pedido.pk %}">
-          {% csrf_token %}
-          <label class="form-label">Alterar Status</label>
-          <select name="status" class="form-select mb-3">
-            <option value="0" {% if pedido.status == 0 %}selected{% endif %}>Novo</option>
-            <option value="1" {% if pedido.status == 1 %}selected{% endif %}>Recebido</option>
-            <option value="2" {% if pedido.status == 2 %}selected{% endif %}>Realizado</option>
-            <option value="3" {% if pedido.status == 3 %}selected{% endif %}>Cancelado</option>
-          </select>
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="ri ri-refresh-line me-1"></i>Atualizar Status
-          </button>
-        </form>
+        {% if can_update_status %}
+          <form method="post" action="{% url 'pedidos:update_status' pedido.pk %}">
+            {% csrf_token %}
+            <label class="form-label">Alterar Status</label>
+            <select name="status" class="form-select mb-3">
+              <option value="0" {% if pedido.status == 0 %}selected{% endif %}>Novo</option>
+              <option value="1" {% if pedido.status == 1 %}selected{% endif %}>Recebido</option>
+              <option value="2" {% if pedido.status == 2 %}selected{% endif %}>Realizado</option>
+              <option value="3" {% if pedido.status == 3 %}selected{% endif %}>Cancelado</option>
+            </select>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="ri ri-refresh-line me-1"></i>Atualizar Status
+            </button>
+          </form>
 
-        <hr>
+          <hr>
+        {% else %}
+          <p class="text-muted mb-3">
+            O status só pode ser atualizado pela unidade que recebeu este pedido.
+          </p>
+        {% endif %}
 
         <a href="{% url 'pedidos:busca' %}" class="btn btn-outline-secondary w-100">
           <i class="ri ri-arrow-left-line me-1"></i>Voltar para Busca

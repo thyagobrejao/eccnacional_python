@@ -6,17 +6,23 @@
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0">{{ page_title }}</h4>
-        {% if unidades|length == 1 %}
-          <span class="badge bg-label-primary">
-            <i class="ri ri-building-line me-1"></i>{{ unidades.0.nome }}
-          </span>
-        {% elif unidades|length > 1 %}
-          <span class="badge bg-label-info">
-            <i class="ri ri-building-line me-1"></i>{{ unidades|length }} unidades
-          </span>
-        {% endif %}
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <h4 class="card-title mb-0">{{ page_title }}</h4>
+          {% if multiple_unidades %}
+            <select class="form-select form-select-sm" id="unidadeFilter" style="width: 260px;">
+              {% for unidade in unidades %}
+                <option value="{{ unidade.id }}" {% if selected_unidade and unidade.id == selected_unidade.id %}selected{% endif %}>
+                  {{ unidade.nome }}
+                </option>
+              {% endfor %}
+            </select>
+          {% elif selected_unidade %}
+            <span class="badge bg-label-primary">
+              <i class="ri ri-building-line me-1"></i>{{ selected_unidade.nome }}
+            </span>
+          {% endif %}
+        </div>
       </div>
       <div class="card-body">
         {% if not unidades %}
@@ -103,6 +109,11 @@
 {% block extra_js %}
 <script>
 $(document).ready(function() {
+  // Trocar unidade recarrega a página
+  $('#unidadeFilter').on('change', function() {
+    window.location.href = '?unidade=' + $(this).val();
+  });
+
   // Habilitar/desabilitar botão quando quantidade muda
   $('.quantidade-input').on('input', function() {
     const input = $(this);

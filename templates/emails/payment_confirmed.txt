@@ -1,0 +1,12 @@
+Olá {{ recipient_name }},
+
+O pagamento do pedido #{{ pedido.pk }} foi confirmado.
+
+Solicitante: {{ pedido.solicitante }}
+Unidade: {{ pedido.unidade.nome }}
+Valor total: R$ {{ pedido_total|floatformat:2 }}
+
+Detalhes do pedido:
+{{ detail_url }}
+
+ECC Nacional

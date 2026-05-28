@@ -1,0 +1,12 @@
+Olá {{ recipient_name }},
+
+O pedido #{{ pedido.pk }} gerou uma movimentação de {{ movement_label|lower }} em estoque.
+
+Itens movimentados:
+{% for item in pedido_items %}- {{ item.material.descricao }}: {{ item.quantidade }}
+{% endfor %}
+
+Detalhes do pedido:
+{{ detail_url }}
+
+ECC Nacional

@@ -251,14 +251,12 @@ class SetMaterialPriceView(LoginRequiredMixin, View):
         """Obtém a unidade selecionada ou a primeira do usuário."""
         user_unidades = self._get_user_unidades(user)
 
-        # Se unidade_id foi fornecida, tentar usar
         if unidade_id:
             try:
                 return user_unidades.get(id=int(unidade_id)), None
             except (ValueError, Unidade.DoesNotExist):
-                pass
+                return None, "Você não tem permissão para definir preços nesta unidade."
 
-        # Caso contrário, pegar a primeira unidade
         unidade = user_unidades.first()
         if not unidade:
             return None, "Você não está vinculado a nenhuma unidade."

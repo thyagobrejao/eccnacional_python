@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h4 class="card-title mb-0">{{ page_title }}</h4>
         {% if can_create %}
           <a href="{% url 'unidades:create' %}" class="btn btn-primary btn-sm">
@@ -15,6 +15,26 @@
         {% endif %}
       </div>
       <div class="card-body">
+        <form method="get" class="mb-3">
+          <div class="input-group" style="max-width: 400px;">
+            <span class="input-group-text"><i class="ri ri-search-line"></i></span>
+            <input
+              type="text"
+              name="q"
+              class="form-control"
+              placeholder="Buscar unidade..."
+              value="{{ search_query }}"
+            >
+            {% if search_query %}
+              <a href="?" class="btn btn-outline-secondary" title="Limpar busca">
+                <i class="ri ri-close-line"></i>
+              </a>
+            {% else %}
+              <button type="submit" class="btn btn-outline-primary">Buscar</button>
+            {% endif %}
+          </div>
+        </form>
+
         {% if unidades %}
           <div class="table-responsive">
             <table class="table table-hover">
@@ -62,14 +82,66 @@
               </tbody>
             </table>
           </div>
+
+          {% if is_paginated %}
+            <nav aria-label="Paginação de unidades" class="mt-3">
+              <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}page=1">
+                      <i class="ri ri-arrow-left-double-line"></i>
+                    </a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                      <i class="ri ri-arrow-left-s-line"></i>
+                    </a>
+                  </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                  {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                    <li class="page-item">
+                      <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">
+                      <i class="ri ri-arrow-right-s-line"></i>
+                    </a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">
+                      <i class="ri ri-arrow-right-double-line"></i>
+                    </a>
+                  </li>
+                {% endif %}
+              </ul>
+              <p class="text-center text-muted small mt-2">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                ({{ page_obj.paginator.count }} unidades{% if search_query %} encontradas{% endif %})
+              </p>
+            </nav>
+          {% endif %}
+
         {% else %}
           <div class="text-center py-5">
             <i class="ri ri-building-line" style="font-size: 4rem; color: var(--bs-secondary);"></i>
-            <p class="mt-3 text-muted">Nenhuma unidade encontrada.</p>
-            {% if can_create %}
-              <a href="{% url 'unidades:create' %}" class="btn btn-primary">
-                <i class="ri ri-add-line me-1"></i>Criar Primeira Unidade
-              </a>
+            {% if search_query %}
+              <p class="mt-3 text-muted">Nenhuma unidade encontrada para "<strong>{{ search_query }}</strong>".</p>
+              <a href="?" class="btn btn-outline-secondary btn-sm">Limpar busca</a>
+            {% else %}
+              <p class="mt-3 text-muted">Nenhuma unidade encontrada.</p>
+              {% if can_create %}
+                <a href="{% url 'unidades:create' %}" class="btn btn-primary">
+                  <i class="ri ri-add-line me-1"></i>Criar Primeira Unidade
+                </a>
+              {% endif %}
             {% endif %}
           </div>
         {% endif %}

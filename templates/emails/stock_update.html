@@ -1,0 +1,27 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Estoque Atualizado{% endblock %}
+{% block heading %}Movimentação de estoque{% endblock %}
+{% block subtitle %}O pedido #{{ pedido.pk }} gerou uma movimentação de {{ movement_label|lower }} nos materiais.{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 16px;font-size:15px;line-height:1.7;">Olá {{ recipient_name }},</p>
+<p style="margin:0 0 18px;font-size:15px;line-height:1.7;">Foi registrada uma <strong>{{ movement_label }}</strong> em estoque para os materiais abaixo:</p>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 20px;">
+  <tr>
+    <th align="left" style="padding:12px 14px;background:#eef5f1;color:#1f352e;font-size:13px;border-bottom:1px solid #d8e3dd;">Material</th>
+    <th align="center" style="padding:12px 14px;background:#eef5f1;color:#1f352e;font-size:13px;border-bottom:1px solid #d8e3dd;">Quantidade</th>
+  </tr>
+  {% for item in pedido_items %}
+  <tr>
+    <td style="padding:12px 14px;border-bottom:1px solid #edf2ef;font-size:14px;">{{ item.material.descricao }}</td>
+    <td align="center" style="padding:12px 14px;border-bottom:1px solid #edf2ef;font-size:14px;">{{ item.quantidade }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<p style="margin:0;">
+  <a href="{{ detail_url }}" style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#295c4f,#3c7c69);color:#ffffff;text-decoration:none;font-weight:700;">Ver pedido</a>
+</p>
+{% endblock %}

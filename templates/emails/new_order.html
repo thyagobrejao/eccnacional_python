@@ -1,0 +1,47 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Novo Pedido de Material{% endblock %}
+{% block heading %}Novo pedido recebido{% endblock %}
+{% block subtitle %}O pedido #{{ pedido.pk }} foi registrado no portal e requer acompanhamento.{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 16px;font-size:15px;line-height:1.7;">Olá {{ recipient_name }},</p>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 22px;background:#f7faf8;border:1px solid #dde7e1;border-radius:18px;">
+  <tr>
+    <td style="padding:18px 20px;font-size:14px;line-height:1.8;color:#1f352e;">
+      <strong>Pedido:</strong> #{{ pedido.pk }}<br>
+      <strong>Solicitante:</strong> {{ pedido.solicitante }}<br>
+      <strong>Unidade:</strong> {{ pedido.unidade.nome }}<br>
+      <strong>Cidade:</strong> {{ pedido.cidade }}<br>
+      <strong>Telefones:</strong> {{ pedido.telefones|default:"-" }}<br>
+      <strong>Endereço:</strong> {{ pedido.endereco|default:"-" }}<br>
+      <strong>CEP:</strong> {{ pedido.cep|default:"-" }}<br>
+      <strong>Observações:</strong> {{ pedido.obs|default:"-" }}
+    </td>
+  </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 20px;">
+  <tr>
+    <th align="left" style="padding:12px 14px;background:#eef5f1;color:#1f352e;font-size:13px;border-bottom:1px solid #d8e3dd;">Material</th>
+    <th align="center" style="padding:12px 14px;background:#eef5f1;color:#1f352e;font-size:13px;border-bottom:1px solid #d8e3dd;">Qtd.</th>
+    <th align="right" style="padding:12px 14px;background:#eef5f1;color:#1f352e;font-size:13px;border-bottom:1px solid #d8e3dd;">Valor</th>
+  </tr>
+  {% for item in pedido_items %}
+  <tr>
+    <td style="padding:12px 14px;border-bottom:1px solid #edf2ef;font-size:14px;">{{ item.material.descricao }}</td>
+    <td align="center" style="padding:12px 14px;border-bottom:1px solid #edf2ef;font-size:14px;">{{ item.quantidade }}</td>
+    <td align="right" style="padding:12px 14px;border-bottom:1px solid #edf2ef;font-size:14px;">R$ {{ item.valor_venda|floatformat:2 }}</td>
+  </tr>
+  {% endfor %}
+  <tr>
+    <td colspan="2" align="right" style="padding:14px;font-size:14px;font-weight:700;">Total</td>
+    <td align="right" style="padding:14px;font-size:14px;font-weight:700;">R$ {{ pedido_total|floatformat:2 }}</td>
+  </tr>
+</table>
+
+<p style="margin:0;">
+  <a href="{{ detail_url }}" style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#295c4f,#3c7c69);color:#ffffff;text-decoration:none;font-weight:700;">Abrir pedido</a>
+</p>
+{% endblock %}

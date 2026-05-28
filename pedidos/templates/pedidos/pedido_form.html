@@ -13,6 +13,14 @@
         <form method="post" id="pedido-form" novalidate>
           {% csrf_token %}
 
+          {% if material_formset.non_form_errors %}
+            <div class="alert alert-danger">
+              {% for error in material_formset.non_form_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
           <div class="row mb-3">
             <div class="col-md-6">
               <label for="{{ form.solicitante.id_for_label }}" class="form-label">{{ form.solicitante.label }}</label>
@@ -127,7 +135,7 @@
               <i class="ri ri-arrow-left-line me-1"></i>Cancelar
             </a>
             <button type="submit" class="btn btn-primary">
-              <i class="ri ri-save-line me-1"></i>Salvar Pedido
+              <i class="ri ri-eye-line me-1"></i>Conferir Pedido
             </button>
           </div>
         </form>
@@ -159,6 +167,8 @@ $(document).ready(function() {
   // Dados do servidor
   const unidadesData = {{ unidades_data|safe }};
   const materiaisDisponiveis = {{ materiais|safe }};
+  const initialMaterialRows = {{ initial_material_rows|safe }};
+  const pricesByUnidade = {{ prices_by_unidade|safe }};
   // Preços carregados da API ou iniciais
   let materiaisPrecos = {{ initial_prices|safe }} || {};
 
@@ -174,28 +184,9 @@ $(document).ready(function() {
 
   // Carregar preços da unidade selecionada
   function loadPrecos(unidadeId, callback) {
-    if (!unidadeId) {
-      if (callback) callback();
-      return;
-    }
-    
-    $.ajax({
-      url: '{% url "pedidos:api_materiais" %}',
-      data: { unidade_id: unidadeId },
-      success: function(data) {
-        materiaisPrecos = {};
-        if (data.materiais) {
-          data.materiais.forEach(function(m) {
-            materiaisPrecos[m.id] = m.preco;
-          });
-        }
-        updateAllRows();
-        if (callback) callback();
-      },
-      error: function() {
-        if (callback) callback();
-      }
-    });
+    materiaisPrecos = pricesByUnidade[String(unidadeId)] || {};
+    updateAllRows();
+    if (callback) callback();
   }
 
   // Atualizar preços de todas as linhas
@@ -363,12 +354,23 @@ $(document).ready(function() {
   });
 
   // Inicialização - Carregar preços primeiro, depois adicionar linha
+  function initializeRows() {
+    if (initialMaterialRows.length) {
+      initialMaterialRows.forEach(function(row) {
+        addMaterialRow(row.material_id, row.quantidade, parseFloat(row.valor_venda || 0));
+      });
+      return;
+    }
+
+    addMaterialRow();
+  }
+
   if (currentUnidadeId) {
     loadPrecos(currentUnidadeId, function() {
-      addMaterialRow();
+      initializeRows();
     });
   } else {
-    addMaterialRow();
+    initializeRows();
   }
 });
 </script>

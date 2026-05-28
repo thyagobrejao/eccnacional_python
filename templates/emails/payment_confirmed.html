@@ -1,0 +1,24 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Pagamento Confirmado{% endblock %}
+{% block heading %}Pagamento confirmado{% endblock %}
+{% block subtitle %}O pedido #{{ pedido.pk }} teve o pagamento confirmado no sistema.{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 16px;font-size:15px;line-height:1.7;">Olá {{ recipient_name }},</p>
+<p style="margin:0 0 18px;font-size:15px;line-height:1.7;">Confirmamos o pagamento do pedido <strong>#{{ pedido.pk }}</strong>.</p>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 22px;background:#f7faf8;border:1px solid #dde7e1;border-radius:18px;">
+  <tr>
+    <td style="padding:18px 20px;font-size:14px;line-height:1.8;color:#1f352e;">
+      <strong>Solicitante:</strong> {{ pedido.solicitante }}<br>
+      <strong>Unidade:</strong> {{ pedido.unidade.nome }}<br>
+      <strong>Valor total:</strong> R$ {{ pedido_total|floatformat:2 }}
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0;">
+  <a href="{{ detail_url }}" style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#295c4f,#3c7c69);color:#ffffff;text-decoration:none;font-weight:700;">Acompanhar pedido</a>
+</p>
+{% endblock %}

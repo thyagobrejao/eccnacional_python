@@ -1,0 +1,14 @@
+Olá {{ recipient_name }},
+
+Criamos uma conta para você no ECC Nacional.
+
+Unidade vinculada: {{ unidade.nome }}
+E-mail: {{ user.email }}
+Senha temporária: {{ password }}
+
+Acesse o sistema em:
+{{ portal_login_url }}
+
+Por segurança, recomendamos alterar sua senha no primeiro acesso.
+
+ECC Nacional

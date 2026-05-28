@@ -1,0 +1,22 @@
+Olá {{ recipient_name }},
+
+Um novo pedido de material foi registrado no ECC Nacional.
+
+Pedido: #{{ pedido.pk }}
+Solicitante: {{ pedido.solicitante }}
+Unidade: {{ pedido.unidade.nome }}
+Cidade: {{ pedido.cidade }}
+Telefones: {{ pedido.telefones|default:"-" }}
+Endereço: {{ pedido.endereco|default:"-" }}
+CEP: {{ pedido.cep|default:"-" }}
+Observações: {{ pedido.obs|default:"-" }}
+
+Itens:
+{% for item in pedido_items %}- {{ item.material.descricao }}: {{ item.quantidade }} x R$ {{ item.valor_venda|floatformat:2 }}
+{% endfor %}
+Total: R$ {{ pedido_total|floatformat:2 }}
+
+Detalhes do pedido:
+{{ detail_url }}
+
+ECC Nacional

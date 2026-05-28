@@ -39,6 +39,11 @@ if ENV == "production":
 else:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
 
+APP_BASE_URL = os.environ.get(
+    "APP_BASE_URL",
+    "https://eccnacional.com.br" if ENV == "production" else "http://127.0.0.1:8000",
+)
+
 
 MESSAGE_TAGS = {
     messages.DEBUG: "secondary",
@@ -189,7 +194,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
-    path for path in [BASE_DIR / "static_files", BASE_DIR / "static/dist"] if path.exists()
+    path
+    for path in [BASE_DIR / "static", BASE_DIR / "static_files", BASE_DIR / "static/dist"]
+    if path.exists()
 ]
 
 SILENCED_SYSTEM_CHECKS = [
@@ -346,10 +353,13 @@ else:
     EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
     EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 1025))
     EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False") == "True"
+    EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "False") == "True"
     EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
     EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+    EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 10))
 
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@eccnacional.com.br")
+PEDIDOS_GRAFICA_EMAIL = os.environ.get("PEDIDOS_GRAFICA_EMAIL", "")
 
 # Authentication settings
 AUTHENTICATION_BACKENDS = [

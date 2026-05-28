@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - ECC Nacional{% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-9">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">{{ page_title }}</h4>
+        <span class="badge bg-warning-subtle text-warning-emphasis">Revise antes de gravar</span>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-light border mb-4">
+          Confira os dados abaixo. Se estiver tudo certo, Confirme o pedido. Caso precise ajustar algo, volte para edição.
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Solicitante:</strong>
+            <p class="mb-0">{{ pedido_preview.solicitante }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Unidade:</strong>
+            <p class="mb-0">{{ pedido_preview.unidade.nome }}</p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Cidade:</strong>
+            <p class="mb-0">{{ pedido_preview.cidade }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Telefones:</strong>
+            <p class="mb-0">{{ pedido_preview.telefones|default:"-" }}</p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-8">
+            <strong>Endereço:</strong>
+            <p class="mb-0">{{ pedido_preview.endereco|default:"-" }}</p>
+          </div>
+          <div class="col-md-4">
+            <strong>CEP:</strong>
+            <p class="mb-0">{{ pedido_preview.cep|default:"-" }}</p>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-12">
+            <strong>Observações:</strong>
+            <p class="mb-0">{{ pedido_preview.obs|default:"-" }}</p>
+          </div>
+        </div>
+
+        <div class="table-responsive mb-4">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Material</th>
+                <th class="text-center">Quantidade</th>
+                <th class="text-end">Valor Unitário</th>
+                <th class="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in pedido_items_preview %}
+                <tr>
+                  <td>{{ item.material.descricao }}</td>
+                  <td class="text-center">{{ item.quantidade }}</td>
+                  <td class="text-end">R$ {{ item.valor_venda|floatformat:2 }}</td>
+                  <td class="text-end">R$ {{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card bg-light border-0">
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              <strong>R$ {{ pedido_total_info.subtotal|floatformat:2 }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Total arredondado</span>
+              <strong>R$ {{ pedido_total_info.total_arredondado|floatformat:2 }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Dígito da unidade</span>
+              <strong>{{ pedido_total_info.digito|floatformat:0 }}</strong>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fs-5">Total final</span>
+              <strong class="fs-4 text-primary">R$ {{ pedido_total_info.total_final|floatformat:2 }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <form method="post" class="mb-0">
+            {% csrf_token %}
+            {% for field in preview_post_fields %}
+              <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+            {% endfor %}
+            <input type="hidden" name="submission_step" value="edit">
+            <button type="submit" class="btn btn-outline-secondary">
+              <i class="ri ri-arrow-left-line me-1"></i>Voltar e Corrigir
+            </button>
+          </form>
+
+          <form method="post" class="mb-0">
+            {% csrf_token %}
+            {% for field in preview_post_fields %}
+              <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+            {% endfor %}
+            <input type="hidden" name="submission_step" value="confirm">
+            <button type="submit" class="btn btn-primary">
+              <i class="ri ri-check-line me-1"></i>Confirmar e Salvar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

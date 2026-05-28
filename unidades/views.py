@@ -6,11 +6,10 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.core.mail import send_mail
-from django.conf import settings
 from django.db.models import Q
 from .models import Unidade, UserUnidade
 from .forms import UnidadeForm, AddUserByEmailForm
+from eccnacional.emailing import send_welcome_email
 
 User = get_user_model()
 
@@ -21,37 +20,61 @@ def generate_random_password(length=12):
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
+def get_all_descendant_ids(root_ids):
+    """
+    Retorna todos os IDs descendentes (recursivo) a partir de uma lista de IDs raiz.
+    Usa uma única query para carregar todas as unidades e percorre em memória.
+    """
+    all_units = Unidade.objects.values("id", "parent_id")
+    children_map = {}
+    for u in all_units:
+        if u["parent_id"]:
+            children_map.setdefault(u["parent_id"], []).append(u["id"])
+
+    all_ids = set(root_ids)
+    queue = list(root_ids)
+    while queue:
+        uid = queue.pop()
+        for child_id in children_map.get(uid, []):
+            if child_id not in all_ids:
+                all_ids.add(child_id)
+                queue.append(child_id)
+    return all_ids
+
+
 class UnidadeListView(LoginRequiredMixin, ListView):
-    """Lista unidades baseado nas permissões do usuário."""
+    """Lista unidades baseado nas permissões do usuário, com hierarquia recursiva."""
 
     model = Unidade
     template_name = "unidades/unidade_list.html"
     context_object_name = "unidades"
+    paginate_by = 25
 
     def get_queryset(self):
         user = self.request.user
 
-        # Superuser vê todas as unidades
         if user.is_superuser:
-            return Unidade.objects.all().order_by("tipo", "nome")
+            queryset = Unidade.objects.all().select_related("parent")
+        else:
+            user_unidade_ids = list(
+                UserUnidade.objects.filter(user=user, status=True).values_list(
+                    "unidade_id", flat=True
+                )
+            )
+            all_ids = get_all_descendant_ids(user_unidade_ids)
+            queryset = Unidade.objects.filter(id__in=all_ids).select_related("parent")
 
-        # Usuário comum vê suas unidades e as filhas
-        user_unidades = UserUnidade.objects.filter(user=user, status=True).values_list(
-            "unidade_id", flat=True
-        )
+        search = self.request.GET.get("q", "").strip()
+        if search:
+            queryset = queryset.filter(nome__icontains=search)
 
-        # Buscar unidades do usuário e suas descendentes
-        queryset = Unidade.objects.filter(
-            Q(id__in=user_unidades) | Q(parent_id__in=user_unidades)
-        ).order_by("tipo", "nome")
-
-        return queryset
+        return queryset.order_by("tipo", "nome")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page_title"] = "Unidades"
+        context["search_query"] = self.request.GET.get("q", "")
 
-        # Verificar se usuário pode criar novas unidades
         user = self.request.user
         context["can_create"] = False
 
@@ -63,7 +86,6 @@ class UnidadeListView(LoginRequiredMixin, ListView):
             ).select_related("unidade")
             if user_unidades.exists():
                 min_tipo = min(uu.unidade.tipo for uu in user_unidades)
-                # Pode criar se não estiver no nível mais baixo (PAROQUIA=5)
                 context["can_create"] = min_tipo < Unidade.Tipo.PAROQUIA
 
         return context
@@ -204,33 +226,7 @@ class AddUserToUnidadeView(LoginRequiredMixin, View):
 
     def _send_welcome_email(self, user, password, unidade):
         """Envia email de boas-vindas com credenciais."""
-        subject = "Sua conta no ECC Nacional foi criada"
-        message = f"""
-Olá {user.first_name or user.username},
-
-Uma conta foi criada para você no sistema ECC Nacional.
-
-Você foi vinculado à unidade: {unidade.nome}
-
-=== DADOS DE ACESSO ===
-URL: {self.request.build_absolute_uri("/gestao/login/")}
-Login: {user.username}
-Senha: {password}
-
-⚠️ IMPORTANTE: Por segurança, recomendamos que você altere sua senha no primeiro acesso.
-
-Em caso de dúvidas, entre em contato com o administrador do sistema.
-
-Atenciosamente,
-Equipe ECC Nacional
-"""
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+        return send_welcome_email(user, password, unidade)
 
 
 class RemoveUserFromUnidadeView(LoginRequiredMixin, View):
