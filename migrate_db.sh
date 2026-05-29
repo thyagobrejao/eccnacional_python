@@ -214,7 +214,7 @@ echo -e "${GREEN}Arquivo .env da aplicação atualizado com sucesso!${NC}"
 
 # 11. Inicia novamente os containers da aplicação
 echo -e "\n🚀 Recriando e reiniciando os containers da aplicação com o novo banco local..."
-docker compose -f "${APP_DIR}/docker-compose.yml" up -d
+docker compose -f "${APP_DIR}/docker-compose.yml" up -d --force-recreate
 
 echo -e "\n${GREEN}======================================================================${NC}"
 echo -e "${GREEN}🎉        MIGRAÇÃO CONCLUÍDA COM SUCESSO!                             ${NC}"
