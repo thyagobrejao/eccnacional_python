@@ -36,8 +36,17 @@ ENVIRONMENT = ENV  # Alias para compatibilidade
 
 if ENV == "production":
     ALLOWED_HOSTS = ["eccnacional.com.br", "www.eccnacional.com.br"]
+    CSRF_TRUSTED_ORIGINS = [
+        "https://eccnacional.com.br",
+        "https://www.eccnacional.com.br",
+    ]
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 else:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
 
 APP_BASE_URL = os.environ.get(
     "APP_BASE_URL",
