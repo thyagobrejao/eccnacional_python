@@ -1,0 +1,95 @@
+{% extends "blog/noticias/base_painel.html" %}
+
+{% block page_title %}{{ page_title }}{% endblock page_title %}
+
+{% block page_actions %}
+    <a href="{% url 'blog:colaborador_list' %}" class="btn btn-outline-secondary" style="border-radius:10px;">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+{% endblock page_actions %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="painel-card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.nome.id_for_label }}" class="form-label fw-semibold">
+                            Nome
+                        </label>
+                        {{ form.nome }}
+                        {% if form.nome.errors %}
+                            <div class="text-danger small mt-1">{{ form.nome.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                            E-mail
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.regiao.id_for_label }}" class="form-label fw-semibold">
+                            Região
+                        </label>
+                        {{ form.regiao }}
+                        {% if form.regiao.errors %}
+                            <div class="text-danger small mt-1">{{ form.regiao.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.perfil.id_for_label }}" class="form-label fw-semibold">
+                                Perfil de Acesso
+                            </label>
+                            {{ form.perfil }}
+                            {% if form.perfil.errors %}
+                                <div class="text-danger small mt-1">{{ form.perfil.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold d-block">Status</label>
+                            <div class="form-check mt-2">
+                                {{ form.ativo }}
+                                <label class="form-check-label" for="{{ form.ativo.id_for_label }}">
+                                    Colaborador ativo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded mb-4" style="background:#f8fafc;">
+                        <h6 style="font-size:0.85rem;font-weight:700;color:#475569;margin-bottom:8px;">
+                            <i class="fas fa-info-circle me-1 text-primary"></i>
+                            Sobre os perfis
+                        </h6>
+                        <ul class="mb-0 small text-muted" style="padding-left:18px;">
+                            <li><strong>Editor</strong> — Pode criar e editar notícias. Notícias são enviadas como rascunho.</li>
+                            <li><strong>Revisor</strong> — Pode publicar notícias, além de cadastrar e editar colaboradores.</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'blog:colaborador_list' %}" class="btn btn-outline-secondary" style="border-radius:10px;">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-painel-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Atualizar{% else %}Cadastrar{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

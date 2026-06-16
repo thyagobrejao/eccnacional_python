@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Acesso ao Painel de Notícias - ECC Nacional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --login-primary: #6366f1;
+            --login-primary-dark: #4f46e5;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(160deg, #1e1b4b 0%, #312e81 35%, #4338ca 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            padding: 44px 36px;
+            animation: fadeUp 0.5s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #312e81, #6366f1);
+            color: #fff;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 56px;
+            text-align: center;
+            margin: 0 auto 20px;
+            letter-spacing: 0.06em;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .login-subtitle {
+            font-size: 0.92rem;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .login-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .login-input {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .login-input:focus {
+            border-color: var(--login-primary);
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+            outline: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--login-primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-login:hover {
+            background: var(--login-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+            color: #fff;
+        }
+
+        .login-info {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 20px;
+            font-size: 0.82rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .login-info i {
+            color: var(--login-primary);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .login-footer a {
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .login-footer a:hover {
+            color: #fff;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="login-card">
+            <div class="login-logo">ECC</div>
+            <h1 class="login-title">Painel de Notícias</h1>
+            <p class="login-subtitle">
+                Informe seu e-mail cadastrado para receber um link de acesso seguro.
+            </p>
+
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="{{ form.email.id_for_label }}" class="login-label">
+                        <i class="fas fa-envelope me-1"></i> E-mail
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar Link de Acesso
+                </button>
+            </form>
+
+            <div class="login-info">
+                <i class="fas fa-shield-halved me-1"></i>
+                Você receberá um link seguro no seu e-mail. O link é válido por <strong>1 hora</strong>
+                e pode ser utilizado apenas uma vez.
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <a href="{% url 'blog:home' %}">
+                <i class="fas fa-arrow-left me-1"></i> Voltar ao site
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Style the form input properly
+        document.addEventListener('DOMContentLoaded', function() {
+            var input = document.querySelector('#{{ form.email.id_for_label }}');
+            if (input) {
+                input.classList.add('login-input');
+                input.classList.remove('form-control-lg');
+            }
+        });
+    </script>
+</body>
+</html>

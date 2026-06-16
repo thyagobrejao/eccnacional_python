@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Link Enviado - ECC Nacional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(160deg, #1e1b4b 0%, #312e81 35%, #4338ca 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .confirm-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            padding: 48px 36px;
+            max-width: 460px;
+            text-align: center;
+            animation: fadeUp 0.5s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .confirm-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #d1fae5, #a7f3d0);
+            color: #059669;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(16,185,129,0); }
+        }
+
+        .confirm-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .confirm-text {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .confirm-steps {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .confirm-steps .step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: 0.88rem;
+            color: #475569;
+        }
+
+        .confirm-steps .step:last-child { margin-bottom: 0; }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .back-link {
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="confirm-card">
+        <div class="confirm-icon">
+            <i class="fas fa-envelope-circle-check"></i>
+        </div>
+        <h1 class="confirm-title">Verifique seu e-mail!</h1>
+        <p class="confirm-text">
+            Se o endereço informado estiver cadastrado no sistema, você receberá um
+            link de acesso em instantes.
+        </p>
+
+        <div class="confirm-steps">
+            <div class="step">
+                <span class="step-number">1</span>
+                <span>Abra seu e-mail e procure a mensagem do <strong>ECC Nacional</strong></span>
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <span>Clique no botão <strong>"Acessar Painel"</strong> dentro do e-mail</span>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <span>Você será direcionado automaticamente ao painel de notícias</span>
+            </div>
+        </div>
+
+        <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 20px;">
+            <i class="fas fa-clock me-1"></i>
+            O link é válido por <strong>1 hora</strong> e pode ser usado apenas uma vez.
+        </p>
+
+        <a href="{% url 'blog:colaborador_login' %}" class="back-link">
+            <i class="fas fa-arrow-left me-1"></i> Tentar novamente
+        </a>
+    </div>
+</body>
+</html>

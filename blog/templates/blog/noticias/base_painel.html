@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}Painel de Notícias - ECC Nacional{% endblock title %}</title>
+
+    {% load django_vite %}
+    {% if USE_VITE %}
+        {% vite_hmr_client %}
+        {% vite_asset 'js/main.js' %}
+    {% endif %}
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    {% block extra_css %}{% endblock extra_css %}
+
+    <style>
+        :root {
+            --painel-primary: #6366f1;
+            --painel-primary-dark: #4f46e5;
+            --painel-primary-light: #a5b4fc;
+            --painel-accent: #f59e0b;
+            --painel-success: #10b981;
+            --painel-danger: #ef4444;
+            --painel-bg: #f1f5f9;
+            --painel-sidebar-bg: linear-gradient(160deg, #312e81 0%, #4338ca 50%, #6366f1 100%);
+            --painel-card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--painel-bg);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* ── Sidebar ────────────────────────────────────── */
+        .painel-sidebar {
+            min-height: 100vh;
+            background: var(--painel-sidebar-bg);
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .painel-sidebar-inner {
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .painel-brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .painel-brand-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 48px;
+            text-align: center;
+            margin: 0 auto 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .painel-brand h5 {
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .painel-brand small {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.78rem;
+        }
+
+        .painel-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .painel-nav li { margin-bottom: 4px; }
+
+        .painel-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 16px;
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .painel-nav a:hover,
+        .painel-nav a.active {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+
+        .painel-nav a.active {
+            background: rgba(255,255,255,0.18);
+            font-weight: 600;
+        }
+
+        .painel-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .painel-nav-divider {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 16px 0;
+        }
+
+        .painel-user-info {
+            padding: 16px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            margin-top: auto;
+        }
+
+        .painel-user-info .user-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.88rem;
+            margin: 0;
+        }
+
+        .painel-user-info .user-role {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        .user-role.editor {
+            background: rgba(245,158,11,0.2);
+            color: #fbbf24;
+        }
+
+        .user-role.revisor {
+            background: rgba(16,185,129,0.2);
+            color: #6ee7b7;
+        }
+
+        /* ── Main Content ───────────────────────────────── */
+        .painel-main {
+            margin-left: 260px;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .painel-topbar {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .painel-topbar h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .painel-content {
+            padding: 28px 32px;
+        }
+
+        /* ── Cards ──────────────────────────────────────── */
+        .painel-card {
+            background: #fff;
+            border: none;
+            border-radius: 14px;
+            box-shadow: var(--painel-card-shadow);
+            overflow: hidden;
+        }
+
+        .painel-card .card-body { padding: 24px; }
+
+        /* ── Mobile toggle ──────────────────────────────── */
+        .sidebar-toggle {
+            display: none;
+            background: var(--painel-primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+        }
+
+        @media (max-width: 991.98px) {
+            .painel-sidebar {
+                transform: translateX(-100%);
+            }
+            .painel-sidebar.open {
+                transform: translateX(0);
+            }
+            .painel-main {
+                margin-left: 0;
+            }
+            .sidebar-toggle {
+                display: inline-flex;
+            }
+            .sidebar-overlay.open {
+                display: block;
+            }
+            .painel-content {
+                padding: 20px 16px;
+            }
+            .painel-topbar {
+                padding: 14px 16px;
+            }
+        }
+
+        /* ── Utilities ──────────────────────────────────── */
+        .badge-rascunho {
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 600;
+        }
+        .badge-publicada {
+            background: #d1fae5;
+            color: #065f46;
+            font-weight: 600;
+        }
+        .btn-painel-primary {
+            background: var(--painel-primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .btn-painel-primary:hover {
+            background: var(--painel-primary-dark);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+        }
+        .preview-image {
+            max-width: 200px;
+            max-height: 150px;
+            object-fit: cover;
+        }
+        .table-image {
+            object-fit: cover;
+        }
+        .table-image-placeholder {
+            width: 60px;
+            height: 45px;
+            border-radius: 0.375rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="painel-sidebar" id="painelSidebar">
+        <div class="painel-sidebar-inner">
+            <div class="painel-brand">
+                <div class="painel-brand-logo">ECC</div>
+                <h5>ECC Nacional</h5>
+                <small>Painel de Notícias</small>
+            </div>
+
+            <ul class="painel-nav">
+                <li>
+                    <a href="{% url 'blog:colaborador_painel' %}"
+                       class="{% if request.resolver_match.url_name == 'colaborador_painel' %}active{% endif %}">
+                        <i class="fas fa-newspaper"></i>
+                        Minhas Notícias
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'blog:colaborador_noticia_create' %}"
+                       class="{% if request.resolver_match.url_name == 'colaborador_noticia_create' %}active{% endif %}">
+                        <i class="fas fa-pen-to-square"></i>
+                        Nova Notícia
+                    </a>
+                </li>
+
+                {% if colaborador.is_revisor %}
+                <div class="painel-nav-divider"></div>
+                <li>
+                    <a href="{% url 'blog:colaborador_list' %}"
+                       class="{% if request.resolver_match.url_name == 'colaborador_list' %}active{% endif %}">
+                        <i class="fas fa-users-gear"></i>
+                        Colaboradores
+                    </a>
+                </li>
+                {% endif %}
+
+                <div class="painel-nav-divider"></div>
+                <li>
+                    <a href="{% url 'blog:home' %}">
+                        <i class="fas fa-globe"></i>
+                        Ver Site
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'blog:colaborador_logout' %}">
+                        <i class="fas fa-right-from-bracket"></i>
+                        Sair
+                    </a>
+                </li>
+            </ul>
+
+            <div class="painel-user-info">
+                <p class="user-name">
+                    <i class="fas fa-user-circle me-1"></i>
+                    {{ colaborador.nome }}
+                </p>
+                <span class="user-role {{ colaborador.perfil }}">
+                    {{ colaborador.get_perfil_display }}
+                </span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="painel-main">
+        <div class="painel-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>{% block page_title %}Painel{% endblock page_title %}</h1>
+            </div>
+            {% block page_actions %}{% endblock page_actions %}
+        </div>
+
+        <div class="painel-content">
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert"
+                         style="border-radius: 10px; border: none;">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock content %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('painelSidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+    </script>
+    {% block extra_js %}{% endblock extra_js %}
+</body>
+</html>

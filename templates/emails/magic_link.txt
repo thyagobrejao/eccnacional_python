@@ -1,0 +1,14 @@
+Olá, {{ colaborador.nome }}!
+
+Você solicitou acesso ao Painel de Notícias do ECC Nacional.
+
+Acesse o painel clicando no link abaixo:
+{{ link }}
+
+IMPORTANTE:
+- Este link é válido por {{ validade }} e pode ser usado apenas uma vez.
+- Se você não solicitou este acesso, ignore este e-mail.
+
+---
+ECC Nacional
+{{ portal_home_url }}

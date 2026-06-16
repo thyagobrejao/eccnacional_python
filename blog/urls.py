@@ -35,4 +35,26 @@ urlpatterns = [
     path('blog/tinymce/upload/', views.tinymce_upload, name='tinymce_upload'),
     path('blog/tinymce/browse/', views.tinymce_file_browser, name='tinymce_file_browser'),
     path('blog/tinymce/browser/', views.tinymce_file_browser_view, name='tinymce_file_browser_view'),
+
+    # ─── Sistema de Colaboradores (Magic Link) ───────────────────────────────
+    # Autenticação
+    path('noticias/login/', views.LoginMagicLinkView.as_view(), name='colaborador_login'),
+    path('noticias/link-enviado/', views.LinkEnviadoView.as_view(), name='colaborador_link_enviado'),
+    path('noticias/verificar/<uuid:token>/', views.ValidarTokenView.as_view(), name='colaborador_verificar'),
+    path('noticias/logout/', views.LogoutColaboradorView.as_view(), name='colaborador_logout'),
+
+    # Painel de notícias do colaborador
+    path('noticias/painel/', views.PainelNoticiasView.as_view(), name='colaborador_painel'),
+    path('noticias/painel/nova/', views.NoticiaColaboradorCreateView.as_view(), name='colaborador_noticia_create'),
+    path('noticias/painel/<int:pk>/', views.NoticiaColaboradorDetailView.as_view(), name='colaborador_noticia_detail'),
+    path('noticias/painel/<int:pk>/editar/', views.NoticiaColaboradorUpdateView.as_view(), name='colaborador_noticia_update'),
+    path('noticias/painel/<int:pk>/publicar/', views.PublicarNoticiaView.as_view(), name='colaborador_noticia_publicar'),
+
+    # Gestão de colaboradores (Revisor)
+    path('noticias/colaboradores/', views.ColaboradorListView.as_view(), name='colaborador_list'),
+    path('noticias/colaboradores/novo/', views.ColaboradorCreateView.as_view(), name='colaborador_create'),
+    path('noticias/colaboradores/<int:pk>/editar/', views.ColaboradorUpdateView.as_view(), name='colaborador_update'),
+
+    # TinyMCE upload para colaboradores
+    path('noticias/tinymce/upload/', views.colaborador_tinymce_upload, name='colaborador_tinymce_upload'),
 ]

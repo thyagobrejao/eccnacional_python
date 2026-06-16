@@ -1,0 +1,44 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Acesso ao Painel de Notícias{% endblock %}
+{% block heading %}Acesso ao Painel{% endblock %}
+{% block subtitle %}Clique no botão abaixo para acessar o painel de notícias.{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#1f352e;">
+  Olá, <strong>{{ colaborador.nome }}</strong>!
+</p>
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#61746d;">
+  Você solicitou acesso ao Painel de Notícias do ECC Nacional.
+  Clique no botão abaixo para entrar:
+</p>
+
+<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 auto 24px;">
+  <tr>
+    <td style="border-radius:14px;background:linear-gradient(145deg,#4338ca,#6366f1);">
+      <a href="{{ link }}" target="_blank"
+         style="display:inline-block;padding:16px 40px;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;letter-spacing:0.02em;">
+        Acessar Painel &rarr;
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#71837b;">
+  Se o botão não funcionar, copie e cole o link abaixo no seu navegador:
+</p>
+<p style="margin:0 0 24px;font-size:13px;line-height:1.6;color:#295c4f;word-break:break-all;">
+  {{ link }}
+</p>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="padding:16px;background:#f8fafc;border-radius:12px;">
+      <p style="margin:0;font-size:13px;line-height:1.6;color:#71837b;">
+        <strong style="color:#475569;">⏱ Validade:</strong> Este link é válido por <strong>{{ validade }}</strong> e pode ser usado apenas uma vez.<br>
+        <strong style="color:#475569;">🔒 Segurança:</strong> Se você não solicitou este acesso, ignore este e-mail.
+      </p>
+    </td>
+  </tr>
+</table>
+{% endblock %}

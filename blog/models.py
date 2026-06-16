@@ -3,7 +3,8 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django_ckeditor_5.fields import CKEditor5Field
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
 import uuid
 import os
 
@@ -26,6 +27,66 @@ def noticia_image_upload_path(instance, filename):
     return f"{environment}/noticias/{year}/{month}/{day}/{unique_filename}"
 
 
+# ─── Colaboradores de Notícias ───────────────────────────────────────────────
+
+class ColaboradorNoticia(models.Model):
+    PERFIL_CHOICES = [
+        ('editor', 'Editor'),
+        ('revisor', 'Revisor'),
+    ]
+    
+    nome = models.CharField(max_length=200, verbose_name="Nome")
+    email = models.EmailField(unique=True, verbose_name="E-mail")
+    regiao = models.CharField(max_length=200, blank=True, verbose_name="Região")
+    perfil = models.CharField(
+        max_length=10, choices=PERFIL_CHOICES, default='editor', verbose_name="Perfil de Acesso"
+    )
+    ativo = models.BooleanField(default=True, verbose_name="Ativo")
+    data_criacao = models.DateTimeField(auto_now_add=True, verbose_name="Data de Cadastro")
+
+    class Meta:
+        verbose_name = "Colaborador de Notícias"
+        verbose_name_plural = "Colaboradores de Notícias"
+        ordering = ['nome']
+
+    def __str__(self):
+        return f"{self.nome} ({self.get_perfil_display()})"
+
+    @property
+    def is_revisor(self):
+        return self.perfil == 'revisor'
+
+
+class TokenAcesso(models.Model):
+    colaborador = models.ForeignKey(
+        ColaboradorNoticia, on_delete=models.CASCADE, related_name='tokens',
+        verbose_name="Colaborador"
+    )
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    criado_em = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
+    expira_em = models.DateTimeField(verbose_name="Expira em")
+    usado = models.BooleanField(default=False, verbose_name="Usado")
+
+    class Meta:
+        verbose_name = "Token de Acesso"
+        verbose_name_plural = "Tokens de Acesso"
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f"Token para {self.colaborador.nome} ({'usado' if self.usado else 'ativo'})"
+
+    def save(self, *args, **kwargs):
+        if not self.expira_em:
+            self.expira_em = timezone.now() + timedelta(hours=1)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_valido(self):
+        return not self.usado and timezone.now() < self.expira_em
+
+
+# ─── Notícias ────────────────────────────────────────────────────────────────
+
 class Noticia(models.Model):
     titulo = models.CharField(max_length=200, verbose_name="Título")
     slug = models.SlugField(max_length=200, unique=True, blank=True)
@@ -41,6 +102,10 @@ class Noticia(models.Model):
     data_criacao = models.DateTimeField(auto_now_add=True, verbose_name="Data de Criação")
     data_atualizacao = models.DateTimeField(auto_now=True, verbose_name="Última Atualização")
     ativa = models.BooleanField(default=True, verbose_name="Ativa")
+    autor = models.ForeignKey(
+        ColaboradorNoticia, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='noticias', verbose_name="Autor (Colaborador)"
+    )
     
     class Meta:
         verbose_name = "Notícia"

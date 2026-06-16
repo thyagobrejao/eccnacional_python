@@ -1,0 +1,93 @@
+{% extends "blog/noticias/base_painel.html" %}
+
+{% block page_title %}Colaboradores{% endblock page_title %}
+
+{% block page_actions %}
+    <a href="{% url 'blog:colaborador_create' %}" class="btn btn-painel-primary">
+        <i class="fas fa-user-plus me-2"></i>Novo Colaborador
+    </a>
+{% endblock page_actions %}
+
+{% block content %}
+<div class="painel-card">
+    <div class="card-body">
+        {% if colaboradores %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b;">
+                            <th style="border-top:none;">Nome</th>
+                            <th style="border-top:none;">E-mail</th>
+                            <th style="border-top:none;">Região</th>
+                            <th style="border-top:none;">Perfil</th>
+                            <th style="border-top:none;">Status</th>
+                            <th style="border-top:none;">Cadastro</th>
+                            <th style="border-top:none;text-align:right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for colab in colaboradores %}
+                        <tr>
+                            <td>
+                                <strong style="font-size: 0.92rem; color: #1e293b;">
+                                    <i class="fas fa-user-circle me-1 text-muted"></i>
+                                    {{ colab.nome }}
+                                </strong>
+                            </td>
+                            <td>
+                                <small>{{ colab.email }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ colab.regiao|default:"—" }}</small>
+                            </td>
+                            <td>
+                                {% if colab.perfil == 'revisor' %}
+                                    <span class="badge px-3 py-2" style="background:rgba(16,185,129,0.12);color:#059669;font-weight:600;">
+                                        <i class="fas fa-shield-halved me-1"></i>Revisor
+                                    </span>
+                                {% else %}
+                                    <span class="badge px-3 py-2" style="background:rgba(99,102,241,0.12);color:#6366f1;font-weight:600;">
+                                        <i class="fas fa-pen me-1"></i>Editor
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if colab.ativo %}
+                                    <span class="badge badge-publicada px-3 py-2">
+                                        <i class="fas fa-check me-1"></i>Ativo
+                                    </span>
+                                {% else %}
+                                    <span class="badge px-3 py-2" style="background:#fee2e2;color:#dc2626;font-weight:600;">
+                                        <i class="fas fa-ban me-1"></i>Inativo
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ colab.data_criacao|date:"d/m/Y" }}</small>
+                            </td>
+                            <td style="text-align:right;">
+                                <a href="{% url 'blog:colaborador_update' colab.pk %}"
+                                   class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div style="width:80px;height:80px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                    <i class="fas fa-users" style="font-size:1.8rem;color:#94a3b8;"></i>
+                </div>
+                <h5 style="color:#475569;font-weight:600;">Nenhum colaborador cadastrado</h5>
+                <p class="text-muted mb-4">Cadastre o primeiro colaborador para começar.</p>
+                <a href="{% url 'blog:colaborador_create' %}" class="btn btn-painel-primary">
+                    <i class="fas fa-user-plus me-2"></i>Cadastrar Colaborador
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

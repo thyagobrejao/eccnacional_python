@@ -1,0 +1,171 @@
+{% extends "blog/noticias/base_painel.html" %}
+{% load static %}
+
+{% block page_title %}
+    {% if object %}Editar Notícia{% else %}Nova Notícia{% endif %}
+{% endblock page_title %}
+
+{% block page_actions %}
+    <a href="{% url 'blog:colaborador_painel' %}" class="btn btn-outline-secondary" style="border-radius:10px;">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+{% endblock page_actions %}
+
+{% block extra_css %}
+    {{ form.media.css }}
+{% endblock extra_css %}
+
+{% block extra_js %}
+    {{ form.media.js }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var fileInput = document.getElementById('{{ form.imagem_principal.id_for_label }}');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                var file = this.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var container = document.getElementById('imagem-preview-container');
+                        if (!container) {
+                            container = document.createElement('div');
+                            container.id = 'imagem-preview-container';
+                            container.className = 'mt-2';
+                            fileInput.parentNode.appendChild(container);
+                        }
+                        container.innerHTML = '<small class="text-muted">Nova imagem selecionada:</small><br>'
+                            + '<img src="' + e.target.result + '" alt="Preview" class="img-thumbnail preview-image" width="200" height="150">';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+    </script>
+{% endblock extra_js %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="painel-card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.titulo.id_for_label }}" class="form-label fw-semibold">
+                            {{ form.titulo.label }}
+                        </label>
+                        {{ form.titulo }}
+                        {% if form.titulo.errors %}
+                            <div class="text-danger small mt-1">{{ form.titulo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label fw-semibold">
+                            {{ form.content.label }}
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger small mt-1">{{ form.content.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.imagem_principal.id_for_label }}" class="form-label fw-semibold">
+                            {{ form.imagem_principal.label }}
+                        </label>
+                        {{ form.imagem_principal }}
+                        {% if form.imagem_principal.help_text %}
+                            <div class="form-text">{{ form.imagem_principal.help_text }}</div>
+                        {% endif %}
+                        {% if form.imagem_principal.errors %}
+                            <div class="text-danger small mt-1">{{ form.imagem_principal.errors.0 }}</div>
+                        {% endif %}
+                        {% if object.imagem_principal %}
+                             <div class="mt-2" id="imagem-preview-container">
+                                 <small class="text-muted">Imagem atual:</small><br>
+                                 <img src="{{ object.imagem_principal.url }}"
+                                      alt="Imagem atual"
+                                      class="img-thumbnail preview-image"
+                                      width="200" height="150"
+                                      onerror="this.style.display='none'; document.getElementById('imagem-broken-warning').style.display='block';">
+                                 <div id="imagem-broken-warning" style="display:none;" class="alert alert-warning mt-2 py-2 px-3 small">
+                                     <i class="fas fa-exclamation-triangle me-1"></i>
+                                     A imagem não foi encontrada no servidor. Faça o upload de uma nova imagem.
+                                 </div>
+                             </div>
+                         {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'blog:colaborador_painel' %}" class="btn btn-outline-secondary" style="border-radius:10px;">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-painel-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Atualizar{% else %}Criar{% endif %} Notícia
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="painel-card">
+            <div class="card-body">
+                <h6 class="mb-3" style="font-weight:700;color:#334155;">
+                    <i class="fas fa-info-circle me-2 text-primary"></i>Informações
+                </h6>
+
+                <div class="mb-3">
+                    <strong class="d-block" style="font-size:0.85rem;color:#475569;">Editor de Texto</strong>
+                    <p class="small text-muted mb-0">
+                        Use o editor para formatar o texto e inserir imagens.
+                        As imagens serão enviadas automaticamente para o servidor.
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <strong class="d-block" style="font-size:0.85rem;color:#475569;">Slug</strong>
+                    <p class="small text-muted mb-0">
+                        O slug (URL amigável) será gerado automaticamente baseado no título.
+                    </p>
+                </div>
+
+                {% if not colaborador.is_revisor %}
+                <div class="mb-3">
+                    <div class="alert alert-info py-2 px-3 mb-0" style="border-radius:10px;font-size:0.85rem;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Sua notícia será enviada como <strong>rascunho</strong> e precisará
+                        ser aprovada por um revisor para ser publicada no site.
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if object %}
+                    <hr>
+                    <div class="mb-2">
+                        <strong class="d-block" style="font-size:0.85rem;color:#475569;">Criada em</strong>
+                        <small class="text-muted">{{ object.data_criacao|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    <div class="mb-2">
+                        <strong class="d-block" style="font-size:0.85rem;color:#475569;">Última atualização</strong>
+                        <small class="text-muted">{{ object.data_atualizacao|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    <div class="mb-0">
+                        <strong class="d-block" style="font-size:0.85rem;color:#475569;">Status</strong>
+                        {% if object.ativa %}
+                            <span class="badge badge-publicada">Publicada</span>
+                        {% else %}
+                            <span class="badge badge-rascunho">Rascunho</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
