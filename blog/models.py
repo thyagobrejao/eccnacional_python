@@ -183,6 +183,7 @@ class Regional(models.Model):
         ('sul2', 'Sul 2'),
         ('sul3', 'Sul 3'),
         ('sul4', 'Sul 4'),
+        ('canada', 'Canadá'),
     ]
     nome = models.CharField(max_length=100, verbose_name="Nome da Regional")
     regional_id = models.CharField(

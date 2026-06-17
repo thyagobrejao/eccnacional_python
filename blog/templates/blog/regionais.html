@@ -24,6 +24,13 @@
         border: none;
         border-radius: 12px;
     }
+    @media (max-width: 768px) {
+        .map-wrapper svg,
+        .map-svg-container {
+            height: auto;
+            aspect-ratio: 506 / 508;
+        }
+    }
     .map-svg-container {
         display: flex;
         align-items: center;
@@ -136,6 +143,56 @@
         text-align: center;
         margin-top: 10px;
     }
+    .canada-map-inset {
+        position: absolute;
+        bottom: 25px;
+        right: 25px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+        z-index: 10;
+    }
+    .canada-map-inset:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        border-color: var(--primary-color);
+        background: #f8fafc;
+    }
+    .canada-map-inset .flag-icon {
+        width: 24px;
+        height: 17px;
+        border-radius: 3px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        object-fit: cover;
+    }
+    .canada-map-inset .inset-label {
+        font-weight: 600;
+        font-size: 0.88rem;
+        color: #1e293b;
+    }
+    @media (max-width: 576px) {
+        .canada-map-inset {
+            bottom: 12px;
+            right: 12px;
+            padding: 6px 12px;
+            gap: 6px;
+            border-radius: 8px;
+        }
+        .canada-map-inset .inset-label {
+            font-size: 0.78rem;
+        }
+        .canada-map-inset .flag-icon {
+            width: 20px;
+            height: 14px;
+        }
+    }
 </style>
 {% endblock extra_css %}
 
@@ -163,6 +220,11 @@
         <!-- Mapa -->
         <div class="col-lg-6">
             <div class="map-wrapper">
+                <!-- Card Flutuante do Canadá -->
+                <div class="canada-map-inset" onclick="loadRegional('canada')" onmouseover="showCanadaTooltip(event)" onmouseout="hideTooltip()" onmousemove="moveCanadaTooltip(event)">
+                    <img src="{% static 'assets/bandeiras/ca.png' %}" alt="Canadá" class="flag-icon">
+                    <span class="inset-label">Canadá</span>
+                </div>
                 <div id="mapa-svg" class="map-svg-container" data-src="{% static 'assets/mapa.svg' %}">
                     <div class="text-center text-muted">
                         <div class="spinner-border mb-3" role="status"></div>
@@ -276,7 +338,8 @@ const ESTADOS = {
     "sc": { nome: "Santa Catarina", capital: "Florianópolis", regiao: "Sul 4", regional: "sul4" },
     "se": { nome: "Sergipe", capital: "Aracaju", regiao: "Nordeste 3", regional: "nordeste3" },
     "sp": { nome: "São Paulo", capital: "São Paulo", regiao: "Sul 1", regional: "sul1" },
-    "to": { nome: "Tocantins", capital: "Palmas", regiao: "Norte 3", regional: "norte3" }
+    "to": { nome: "Tocantins", capital: "Palmas", regiao: "Norte 3", regional: "norte3" },
+    "ca": { nome: "Canadá", capital: "Ottawa", regiao: "Internacional", regional: "canada" }
 };
 
 const REGIONAL_URL = "{% url 'blog:regional_ajax' 'PLACEHOLDER' %}";
@@ -294,11 +357,21 @@ function showTooltip(x, y, sigla) {
     document.getElementById('tt-capital').textContent = 'Capital: ' + data.capital;
     document.getElementById('tt-regional').textContent = 'Regional: ' + data.regiao;
     const flag = document.getElementById('tt-flag');
+    flag.style.display = 'inline-block';
     flag.src = `/static/assets/bandeiras/${sigla}.png`;
     flag.onerror = () => { flag.style.display = 'none'; };
     tooltip.style.display = 'block';
     tooltip.style.left = (x + 15) + 'px';
     tooltip.style.top = (y + 10) + 'px';
+}
+
+function showCanadaTooltip(e) {
+    showTooltip(e.clientX, e.clientY, 'ca');
+}
+
+function moveCanadaTooltip(e) {
+    tooltip.style.left = (e.clientX + 15) + 'px';
+    tooltip.style.top = (e.clientY + 10) + 'px';
 }
 
 function hideTooltip() {
@@ -374,6 +447,9 @@ window.addEventListener('load', function () {
             const svgElement = mapContainer.querySelector('svg');
             if (!svgElement) {
                 throw new Error('SVG nao encontrado');
+            }
+            if (!svgElement.getAttribute('viewBox')) {
+                svgElement.setAttribute('viewBox', '0 0 506.34714 508.11774');
             }
             initSVG(svgElement);
         })

@@ -28,5 +28,5 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-# Executa o Gunicorn
-CMD ["gunicorn", "eccnacional.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# Coleta arquivos estáticos na inicialização e executa o Gunicorn
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn eccnacional.wsgi:application --bind 0.0.0.0:8000 --workers 3"]
