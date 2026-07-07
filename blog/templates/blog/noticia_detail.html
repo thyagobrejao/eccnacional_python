@@ -23,11 +23,11 @@
                         <h1 class="display-6 fw-bold mb-3">{{ noticia.titulo }}</h1>
                         <div class="d-flex align-items-center text-muted mb-3">
                             <i class="fas fa-calendar me-2"></i>
-                            <span>Publicado em {{ noticia.data_criacao|date:"d/m/Y às H:i" }}</span>
+                            <span>Publicado em {{ noticia.data_criacao|date:"d/m/Y" }} às {{ noticia.data_criacao|date:"H:i" }}</span>
                             {% if noticia.data_atualizacao != noticia.data_criacao %}
                             <span class="ms-3">
                                 <i class="fas fa-edit me-2"></i>
-                                Atualizado em {{ noticia.data_atualizacao|date:"d/m/Y às H:i" }}
+                                Atualizado em {{ noticia.data_atualizacao|date:"d/m/Y" }} às {{ noticia.data_atualizacao|date:"H:i" }}
                             </span>
                             {% endif %}
                         </div>
