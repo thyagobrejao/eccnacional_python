@@ -259,7 +259,7 @@
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title">{{ noticia.titulo }}</h5>
                                         <p class="card-excerpt flex-grow-1 mb-3">
-                                            {{ noticia.content|striptags|truncatewords:20 }}
+                                            {{ noticia.content|striptags|truncatewords:20|safe }}
                                         </p>
                                         <div>
                                             <span class="read-more-chip">
